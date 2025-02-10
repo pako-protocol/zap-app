@@ -41,6 +41,6 @@ export const handleAPRupdates = async () => {
 
     console.log('Silos', silos);
   } catch (error) {
-    console.error('Error fetching silos', error?.stack);
+    console.error('Error fetching silos', (error as Error)?.stack);
   }
 };

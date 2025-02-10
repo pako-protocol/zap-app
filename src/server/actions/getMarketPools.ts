@@ -19,7 +19,7 @@ export interface MarketPools {
     maxLTV: string;
     maxLT: string;
     TVL: string;
-    liquidationFee: string;
+    // liquadationFee: string;
     contractAddress: string;
     siloAddress: string;
   };
@@ -34,7 +34,7 @@ export interface MarketPools {
     maxLTV: string;
     maxLT: string;
     TVL: string;
-    liquidationFee: string;
+    //liquadationFee: string;
     contractAddress: string;
     siloAddress: string;
   };
@@ -120,6 +120,7 @@ export const getPools = async (): Promise<MarketPools[]> => {
     }
 
     // Only return the fields we need
+
     return await Promise.all(
       parsed.data.items.map(async (market) => ({
         _id: market._id,
