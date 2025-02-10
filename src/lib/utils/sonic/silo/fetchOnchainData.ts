@@ -6,10 +6,13 @@ import prisma from '@/lib/prisma';
 
 import LENS_ABI from '../../../../abis/lens.json';
 
-const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
 // INITIALIZE CONTRACT
-const siloLens = new ethers.Contract(SILO_LENS_ADDRESS, LENS_ABI, provider);
+
 export const handleAPRupdates = async () => {
+  const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
+  const siloLens = new ethers.Contract(SILO_LENS_ADDRESS, LENS_ABI, provider);
+  // Wait for provider to be ready
+  await provider.ready;
   try {
     const silos = await prisma.silo.findMany();
 
