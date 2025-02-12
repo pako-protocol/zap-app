@@ -10,6 +10,7 @@ import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { ActionResponse, actionClient } from '@/lib/safe-action';
 import { generateEncryptedKeyPair } from '@/lib/solana/wallet-generator';
+import { generateEncryptedKeyPairEvm } from '@/lib/sonic/evm-wallet-generator';
 import { EmbeddedWallet, PrismaUser } from '@/types/db';
 
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
@@ -60,7 +61,8 @@ const getOrCreateUser = actionClient
       },
     });
 
-    const { publicKey, encryptedPrivateKey } = await generateEncryptedKeyPair();
+    const { publicKey, encryptedPrivateKey } =
+      await generateEncryptedKeyPairEvm();
     const initalWallet = await prisma.wallet.create({
       data: {
         ownerId: createdUser.id,

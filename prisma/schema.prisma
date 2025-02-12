@@ -192,6 +192,85 @@ model TelegramChat {
 }
 
 
+
+model Market {
+  id            String   @id @default(uuid())
+  name          String
+  
+  baseSilo      Silo     @relation("BaseSilo", fields: [baseSiloId], references: [id])
+  baseSiloId    String   @unique
+
+  bridgeSilo    Silo     @relation("BridgeSilo", fields: [bridgeSiloId], references: [id])
+  bridgeSiloId  String   @unique
+
+  tvl           Decimal? @default(0.0)
+  volume        Decimal? @default(0.0)
+  protocolFee   Decimal? @default(0.0)
+
+  platform      Platform @relation(fields: [platformId], references: [id])
+  platformId    String
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([platformId])
+  @@index([baseSiloId])
+  @@index([bridgeSiloId])
+}
+
+
+model Silo {
+  id                   String   @id @default(uuid())
+  name                 String
+  siloAddress          String   @unique
+  ltv                  Decimal?
+  liquidationThreshold Decimal?
+  tvl                  Decimal? @default(0.0)
+
+  marketBase           Market?  @relation("BaseSilo")
+  marketBridge         Market?  @relation("BridgeSilo")
+
+  tokenId              String
+  token                Token    @relation(fields: [tokenId], references: [id])
+
+  aprBorrow            Decimal? @default(0.0)
+  aprDeposit           Decimal? @default(0.0)
+  protocolFee          Decimal? @default(0.0)
+  utilization          Decimal? @default(0.0)
+  liquidationFee       Decimal? @default(0.0)
+  riskLevel           RiskLevel @default(LOW)
+  availableToBorrow    Decimal? @default(0.0)
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([tokenId])
+}
+
+model Platform {
+  id         String  @id @default(uuid())
+  name       String
+  tvl        Decimal? @default(0.0)
+  markets    Market[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Token {
+  id           String  @id @default(uuid())
+  name         String
+  symbol       String  @unique
+  logo         String
+  tokenAddress String
+  silos        Silo[]
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 // MARKET RELATED SCHEMA
 
 /*model Market {
@@ -261,7 +340,7 @@ enum RiskLevel {
   HIGH
 }*/
 
-model Market {
+/*model Market {
   id           String   @id @default(uuid())
   name         String 
   baseAsset    String
@@ -326,4 +405,4 @@ enum RiskLevel {
   LOW
   MEDIUM
   HIGH
-}
+}*/
