@@ -15,7 +15,7 @@ export async function generateEncryptedKeyPairEvm() {
 /**
  * Decrypt private key
  */
-export async function decryptPrivateKey(encryptedPrivateKey: string) {
+export async function decryptPrivateKeyEvm(encryptedPrivateKey: string) {
   return await WalletEncryption.decrypt(encryptedPrivateKey);
 }
 

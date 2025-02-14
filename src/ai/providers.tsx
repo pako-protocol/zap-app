@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { actionTools } from './generic/action';
 import { jinaTools } from './generic/jina';
 import { poolTools } from './generic/sonic/pools';
+import { siloFinanceTools } from './generic/sonic/siloFinance';
 import { telegramTools } from './generic/telegram';
 import { utilTools } from './generic/util';
 import { birdeyeTools } from './solana/birdeye';
@@ -53,7 +54,7 @@ const openAiModel = openai(process.env.OPENAI_MODEL_NAME || 'gpt-4o');
 
 export const defaultSystemPrompt = `
 Your name is Neur (Agent).
-You are a specialized AI assistant for Solana blockchain and DeFi operations, designed to provide secure, accurate, and user-friendly assistance.
+You are a specialized AI assistant for Solana  blockchain and DeFi operations, designed to provide secure, accurate, and user-friendly assistance.
 
 Critical Rules:
 - If the previous tool result contains the key-value pair 'noFollowUp: true':
@@ -98,6 +99,16 @@ Common knowledge:
 - { token: NEUR, description: The native token of Neur, twitter: @neur_sh, website: https://neur.sh/, address: 3N2ETvNpPNAxhcaXgkhKoY1yDnQfs41Wnxsx5qNJpump }
 - { user: toly, description: Co-Founder of Solana Labs, twitter: @aeyakovenko, wallet: toly.sol }\
 
+Your task For deposit on silo:
+- when user want to deposit analys available markets  from silo pool markets
+- Get siloContract address based on the user token want to deposit
+- pass selected silo contractaddress  to depositTool as param for marketAddress
+- get the specified amount and pass to depositTool as string number, eg user mention 2stS  pass "2" to depositTool as amount param
+
+Good to know
+- each market pool have 2 silos / vaults baseAsset and bridge asset
+- when user wants to deposit check if he wants to deposit base or bridge asset based on token symbol
+- then deposit token to match silo address
 Realtime knowledge:
 - { approximateCurrentTime: ${new Date().toISOString()}}
 `;
@@ -140,18 +151,19 @@ export function DefaultToolResultRenderer({ result }: { result: unknown }) {
 
 export const defaultTools: Record<string, ToolConfig> = {
   ...actionTools,
-  ...solanaTools,
-  ...definedTools,
-  ...pumpfunTools,
-  ...jupiterTools,
-  ...dexscreenerTools,
-  ...magicEdenTools,
+  // ...solanaTools,
+  // ...definedTools,
+  //...pumpfunTools,
+  //...jupiterTools,
+  //...dexscreenerTools,
+  //...magicEdenTools,
   ...jinaTools,
   ...utilTools,
-  ...chartTools,
+  //...chartTools,
   ...telegramTools,
-  ...birdeyeTools,
-  ...poolTools,
+  //...birdeyeTools,
+  //...poolTools,
+  ...siloFinanceTools,
 };
 
 export const coreTools: Record<string, ToolConfig> = {
@@ -165,7 +177,7 @@ export const toolsets: Record<
   { tools: string[]; description: string }
 > = {
   coreTools: {
-    tools: ['actionTools', 'utilTools', 'jupiterTools'],
+    tools: ['actionTools', 'utilTools', 'siloFinanceTools'],
     description:
       'Core utility tools for general operations, including actions, searching token info, utility functions.',
   },
@@ -175,17 +187,17 @@ export const toolsets: Record<
       'Web scraping and content extraction tools for reading web pages and extracting content.',
   },
   defiTools: {
-    tools: ['solanaTools', 'dexscreenerTools', 'poolTools'],
+    tools: ['siloFinanceTools'],
     description:
-      'Tools for interacting with DeFi protocols on Solana and sonic, including swaps, market data, token information lending protocols and details.',
+      'Tools for interacting with DeFi protocols on  Sonic blockchain, including swaps, market data, token information lending protocols and details.',
   },
   traderTools: {
-    tools: ['birdeyeTools'],
+    tools: ['siloFinanceTools'],
     description:
-      'Tools for analyzing and tracking traders and trades on Solana DEXes.',
+      'Tools for analyzing and tracking traders and trades on Sonic lending DEXes.',
   },
   financeTools: {
-    tools: ['definedTools'],
+    tools: [/*'definedTools' */ 'siloFinanceTools'],
     description:
       'Tools for retrieving and applying logic to static financial data, including analyzing trending tokens.',
   },
@@ -211,7 +223,7 @@ export const toolsets: Record<
 };
 
 export const orchestrationPrompt = `
-You are Neur, an AI assistant specialized in Solana blockchain and DeFi operations.
+You are Neur, an AI assistant specialized in Sonic blockchain and DeFi operations.
 
 Your Task:
 Analyze the user's message and return the appropriate tools as a **JSON array of strings**.  

@@ -16,5 +16,9 @@ export async function approveTokens(amount: string) {
     console.log('Approval TX:', tx);
   } catch (error) {
     console.error('Approval error:', error);
+    return {
+      success: false,
+      error: error,
+    };
   }
 }

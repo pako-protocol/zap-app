@@ -10,12 +10,14 @@ import { borrowWS } from '@/lib/sonic/borrowWs';
 import { depositSTSV2 } from '@/lib/sonic/depositV2';
 import { depositWts } from '@/lib/sonic/depositWs';
 import {
-  decryptPrivateKey,
+  decryptPrivateKeyEvm,
   generateEncryptedKeyPairEvm,
 } from '@/lib/sonic/evm-wallet-generator';
 import { getDepositedBalanceWs } from '@/lib/sonic/ftechDepositedAmount';
 import { fetchUserPosition } from '@/lib/sonic/ftechUserPositions';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
+import { getPoolMarkets } from '@/server/actions/getMarkets';
+import { getPoolTokens } from '@/server/actions/getTokens';
 
 export default function page() {
   const account = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
@@ -40,11 +42,32 @@ export default function page() {
   };
 
   const handleDecrpt = async () => {
-    const pvKey = await decryptPrivateKey(encryptedKey);
+    const pvKey = await decryptPrivateKeyEvm(encryptedKey);
     console.log('private key', pvKey);
   };
   const props = {
-    amount: '1',
+    symbol: 'S',
+  };
+
+  const props2 = {
+    marketName: 'S-ETH',
+  };
+  const handleFetchPollTokens = async () => {
+    try {
+      const tokens = await getPoolTokens(props);
+      console.log('Tokens', tokens);
+    } catch (error) {
+      console.log('error when fetching', error);
+    }
+  };
+
+  const handleFetchMarkets = async () => {
+    try {
+      const tokens = await getPoolMarkets(props2);
+      console.log('Tokens', tokens);
+    } catch (error) {
+      console.log('error when fetching', error);
+    }
   };
   return (
     <div>
@@ -64,6 +87,10 @@ export default function page() {
       <Button onClick={() => borrowWS('0.5')}>Borrow 1 ws</Button>
       <Button onClick={() => handleGenerateEvm()}>Generate PK</Button>
       <Button onClick={() => handleDecrpt()}>Decrypt private keys</Button>
+      <Button onClick={() => handleFetchPollTokens()}>
+        Testtoken fetching
+      </Button>
+      <Button onClick={() => handleFetchMarkets()}>Test market fetching</Button>
     </div>
   );
 }

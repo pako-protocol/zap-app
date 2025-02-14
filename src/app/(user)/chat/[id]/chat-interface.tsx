@@ -281,7 +281,7 @@ function MessageToolInvocations({
             'error' in result;
           const config = getToolConfig(toolName)!;
           // TODO: fix intermitent issue where config is undefined
-          const finalDisplayName = displayName || config.displayName;
+          const finalDisplayName = displayName || config?.displayName;
 
           const header = (
             <div className="flex min-w-0 flex-1 items-center gap-2">
