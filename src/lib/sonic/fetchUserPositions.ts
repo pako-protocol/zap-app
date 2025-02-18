@@ -13,17 +13,15 @@ interface UserPosition {
   borrowPowerUsed: bigint;
 }
 
-export async function fetchUserPosition(
-  chainName: string,
-  //account: string,
-  marketId: string,
-): Promise<UserPosition> {
-  const account = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
+interface Params {
+  marketId: string;
+  account: string;
+}
+export async function fetchUserPosition(params: Params): Promise<UserPosition> {
   try {
     const response = await axios.get(
-      `https://v2.silo.finance/api/lending-market/sonic/3?user=${account}`,
+      `https://v2.silo.finance/api/lending-market/sonic/${params.marketId}?user=${params.account}`,
     );
-    console.log('full response is ', response);
     return {
       silo0: {
         siloAddress: response.data.silo0.siloAddress,
@@ -39,6 +37,10 @@ export async function fetchUserPosition(
       borrowPowerUsed: BigInt(response.data.borrowPowerUsed),
     };
   } catch (e) {
-    throw new Error(`Failed to fetch user position: ${e?.message}`);
+    if (e instanceof Error) {
+      throw new Error(`Failed to fetch user position: ${e.message}`);
+    } else {
+      throw new Error('Failed to fetch user position: Unknown error');
+    }
   }
 }

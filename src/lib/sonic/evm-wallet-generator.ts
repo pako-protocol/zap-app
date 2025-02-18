@@ -27,7 +27,7 @@ async function generateExposedKeyPair() {
   const privateKeyBuffer = randomBytes(32);
 
   // Convert private key buffer to hex with '0x' prefix
-  const privateKeyHex = `0x${privateKeyBuffer.toString('hex')}`;
+  const privateKeyHex: `0x${string}` = `0x${privateKeyBuffer.toString('hex')}`;
 
   // Generate account from private key
   const account = privateKeyToAccount(privateKeyHex);

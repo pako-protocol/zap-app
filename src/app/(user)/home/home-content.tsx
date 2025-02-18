@@ -18,7 +18,9 @@ import { Badge } from '@/components/ui/badge';
 import BlurFade from '@/components/ui/blur-fade';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import TypingAnimation from '@/components/ui/typing-animation';
+import useAccessStore from '@/hooks/store/acessKey';
 import { useConversations } from '@/hooks/use-conversations';
 import { useUser } from '@/hooks/use-user';
 import { EVENTS } from '@/lib/events';
@@ -65,16 +67,45 @@ export function HomeContent() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [chatId, setChatId] = useState(() => uuidv4());
   const { user, isLoading } = useUser();
+  const [accessCodeToken, setaccessCodeToken] = useState<string>('');
   const [verifyingTx, setVerifyingTx] = useState<string | null>(null);
   const [verificationAttempts, setVerificationAttempts] = useState(0);
+  const { accessCode, isValid, setAccessCode, setIsValid } = useAccessStore();
   const MAX_VERIFICATION_ATTEMPTS = 20;
-
   const { conversations, refreshConversations } = useConversations(user?.id);
 
   const resetChat = useCallback(() => {
     setShowChat(false);
     setChatId(uuidv4());
   }, []);
+
+  const INVALID_ACCESS_CODE =
+    'Your code is either expired or already used. 🔒 Please check your code and try again, or request a new one';
+  const handleSubmitAccessCode = async () => {
+    if (!accessCodeToken || accessCodeToken.length < 2) {
+      toast('Not valid access token');
+    }
+    try {
+      setIsProcessing(true);
+      const res = await fetch('/api/access-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCodeToken }),
+      });
+      const data = await res.json();
+      setIsValid(data.valid);
+      if (!data.valid) {
+        toast(INVALID_ACCESS_CODE);
+        setIsProcessing(false);
+      }
+      setAccessCode(accessCodeToken);
+      setIsProcessing(false);
+    } catch (error) {
+      console.error('Error checking access code:', error);
+      setIsProcessing(false);
+    }
+    setAccessCode(accessCodeToken);
+  };
 
   /*----------------------------------
          FETCH SAVED pROMPTS
@@ -114,7 +145,34 @@ export function HomeContent() {
       } as unknown as JSONValue;
     },
   });
+  /*------------------------------
+  ACESS KEY CHECKER
+  ----------------------------------*/
+  // Function to check code validity
+  const checkAccessCode = async () => {
+    if (!accessCode) return;
+    try {
+      const res = await fetch('/api/access-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCode }),
+      });
+      const data = await res.json();
+      setIsValid(data.valid);
+    } catch (error) {
+      console.error('Error checking access code:', error);
+    }
+  };
 
+  // Run validation every 5 minutes
+  useEffect(() => {
+    if (!accessCode) return;
+
+    checkAccessCode(); // Check immediately when the code is set
+    const interval = setInterval(checkAccessCode, 5 * 60 * 1000); // Check every 5 minutes
+
+    return () => clearInterval(interval);
+  }, [accessCode]);
   /*----------------------------------
          PAYMENT VERIFICATION 
     ------------------------------------*/
@@ -291,11 +349,13 @@ export function HomeContent() {
           />
         </BlurFade>
 
-        {hasEAP && (
+        {accessCode && isValid && (
           <div className="space-y-8">
-            <BlurFade delay={0.2}>
+            {/* HIDE SUGGETIONS */}
+            {/* <BlurFade delay={0.2}>
               <div className="space-y-2">
-                <SectionTitle>Suggestions</SectionTitle>
+               
+              <SectionTitle>Suggestions</SectionTitle>
                 <div className="grid grid-cols-2 gap-4">
                   {suggestions.map((suggestion, index) => (
                     <SuggestionCard
@@ -307,7 +367,7 @@ export function HomeContent() {
                   ))}
                 </div>
               </div>
-            </BlurFade>
+            </BlurFade>*/}
 
             {!isFetchingSavedPrompts && savedPrompts.length !== 0 && (
               <BlurFade delay={0.3}>
@@ -353,7 +413,7 @@ export function HomeContent() {
   /*----------------------------------
          NO ACCESS 
     ------------------------------------*/
-  if (!hasEAP) {
+  /*if (!hasEAP) {
     return (
       <div className="relative h-screen w-full overflow-hidden text-xs sm:text-base">
         <div className="absolute inset-0 z-10 bg-background/30 backdrop-blur-md" />
@@ -435,6 +495,92 @@ export function HomeContent() {
       </div>
     );
   }
+*/
+  if (!accessCode || (accessCode && !isValid)) {
+    return (
+      <div className="relative h-screen w-full overflow-hidden text-xs sm:text-base">
+        <div className="absolute inset-0 z-10 bg-background/30 backdrop-blur-md" />
+        {mainContent}
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="mx-auto max-h-screen max-w-xl overflow-y-auto p-6">
+            <Card className="relative max-h-full border-white/[0.1] bg-white/[0.02] p-4 backdrop-blur-sm backdrop-saturate-150 dark:bg-black/[0.02] sm:p-8">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-white/[0.02] dark:from-white/[0.02] dark:to-white/[0.01]" />
+              <div className="relative space-y-6">
+                <div className="space-y-2 text-center">
+                  <h2 className="text-lg font-semibold sm:text-2xl">
+                    Early Access Program
+                  </h2>
+                  <div className="text-muted-foreground">
+                    We&apos;re currently limiting <Badge>BETA</Badge> access to
+                    a limited amount of users to ensure stable service while
+                    continuing to refine features.
+                  </div>
+                </div>
+
+                <Card className="border-teal-500/10 bg-white/[0.01] p-6 backdrop-blur-sm dark:bg-black/[0.01]">
+                  <h3 className="mb-4 font-semibold">EAP Benefits</h3>
+                  <div className="space-y-3">
+                    {EAP_BENEFITS.map((benefit, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <CheckCircle2 className="mt-1 h-4 w-4 text-teal-500" />
+                        <span className="text-xs sm:text-sm">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                <div className="rounded-lg bg-white/[0.01] p-4 backdrop-blur-sm dark:bg-black/[0.01]">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text:xs font-medium sm:text-sm">
+                      Enter your access code
+                    </span>
+                    <span className="hidden text-base font-semibold sm:text-lg">
+                      For free
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground sm:text-sm">
+                    <Input
+                      placeholder="acb0c250"
+                      type="text"
+                      value={accessCodeToken}
+                      onChange={(e) => setaccessCodeToken(e.target.value)}
+                      className="h-11 w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <Link
+                    href="https://x.com/neur_sh"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-xs text-muted-foreground transition-colors hover:text-foreground sm:text-sm"
+                  >
+                    <RiTwitterXFill className="mr-2 h-4 w-4" />
+                    Follow Updates
+                  </Link>
+                  <Button
+                    onClick={handleSubmitAccessCode}
+                    disabled={isProcessing}
+                    className="bg-teal-500/70 text-xs ring-offset-0 hover:bg-teal-500/90 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-teal-500/60 dark:hover:bg-teal-500/80 sm:text-sm"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing
+                      </>
+                    ) : (
+                      `Join Early access`
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-screen">
@@ -460,4 +606,7 @@ export function HomeContent() {
       )}
     </div>
   );
+}
+function useToast(): { toast: any } {
+  throw new Error('Function not implemented.');
 }

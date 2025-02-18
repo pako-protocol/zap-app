@@ -1,5 +1,4 @@
-import { getAgentKit } from "../actions/ai";
-
+import { getAgentKit } from '../actions/ai';
 
 /*
 Server Utils
@@ -9,12 +8,19 @@ Do not call these functions from the client side.
 
 /**
  * Bypasses verifyUser() and retrieves the agent kit for the given userId.
- * @param userId 
+ * @param userId
  * @returns Agent kit for userId
  */
-export const retrieveAgentKitServer = async ({ userId, walletId }: {
+export const retrieveAgentKitServer = async ({
+  userId,
+  walletId,
+}: {
   userId: string;
   walletId?: string;
 }) => {
   return getAgentKit({ userId, walletId });
+};
+
+export const formatForURL = (name: string): string => {
+  return name.toLowerCase().replace(/\s+/g, '-');
 };

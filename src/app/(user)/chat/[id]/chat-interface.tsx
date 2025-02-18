@@ -387,7 +387,7 @@ function ChatMessage({
       )}
     >
       {showAvatar ? (
-        <Avatar className="mt-0.5 h-8 w-8 shrink-0 select-none">
+        <Avatar className="mt-0.5 h-8 w-8 shrink-0 select-none object-contain">
           <Logo />
           <AvatarFallback>AI</AvatarFallback>
         </Avatar>

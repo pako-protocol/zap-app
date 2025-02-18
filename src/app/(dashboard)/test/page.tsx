@@ -7,17 +7,21 @@ import { Button } from '@/components/ui/button';
 import { BORROWABLE_WS_DEPOSIT_ADDRESS } from '@/lib/constants';
 import { approveTokens } from '@/lib/sonic/approveAllowance';
 import { borrowWS } from '@/lib/sonic/borrowWs';
-import { depositSTSV2 } from '@/lib/sonic/depositV2';
 import { depositWts } from '@/lib/sonic/depositWs';
 import {
   decryptPrivateKeyEvm,
   generateEncryptedKeyPairEvm,
 } from '@/lib/sonic/evm-wallet-generator';
+import { fetchUserPosition } from '@/lib/sonic/fetchUserPositions';
 import { getDepositedBalanceWs } from '@/lib/sonic/ftechDepositedAmount';
-import { fetchUserPosition } from '@/lib/sonic/ftechUserPositions';
+import { repayWS } from '@/lib/sonic/repay';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
+import { withdrawSTS } from '@/lib/sonic/withdraw';
 import { getPoolMarkets } from '@/server/actions/getMarkets';
 import { getPoolTokens } from '@/server/actions/getTokens';
+import { getUserPositions } from '@/server/actions/getUserPositions';
+import { getBotUsername } from '@/server/actions/telegram';
+import { dbCheckAccessCodeStatus } from '@/server/db/queries';
 
 export default function page() {
   const account = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
@@ -52,6 +56,10 @@ export default function page() {
   const props2 = {
     marketName: 'S-ETH',
   };
+  const props3 = {
+    marketId: '3',
+    account: '0x0A408a7F76F206C7898227CDaC871f0E4D3e46eE', //'0x4c9972f2AA16B643440488a788e933c139Ff0323',
+  };
   const handleFetchPollTokens = async () => {
     try {
       const tokens = await getPoolTokens(props);
@@ -69,6 +77,47 @@ export default function page() {
       console.log('error when fetching', error);
     }
   };
+
+  const handleFetchUserPositions = async () => {
+    try {
+      const positions = await fetchUserPosition(props3);
+      console.log('Positions', positions);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleGetBotInfo = async () => {
+    try {
+      const bot = await getBotUsername();
+      console.log(bot);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const accessCode = 'kabugu';
+  const testAcessKey = async () => {
+    try {
+      const res = await fetch('/api/access-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCode }),
+      });
+
+      const data = await res.json();
+      console.log('access code results', data);
+    } catch (error) {}
+  };
+
+  const handleTestBB = async () => {
+    try {
+      const res = await dbCheckAccessCodeStatus('kabugu');
+      console.log('response', res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -78,7 +127,9 @@ export default function page() {
         Check native balance
       </Button>
 
-      <Button onClick={() => fetchUserPosition()}>Get user positions</Button>
+      <Button onClick={() => handleFetchUserPositions()}>
+        Get user positions
+      </Button>
 
       <Button onClick={() => getDepositedBalanceWs()}>
         Get silo 0 colleteral
@@ -91,6 +142,12 @@ export default function page() {
         Testtoken fetching
       </Button>
       <Button onClick={() => handleFetchMarkets()}>Test market fetching</Button>
+      <Button onClick={() => handleGetBotInfo()}>Get bot info</Button>
+      <Button onClick={() => borrowWS('50')}>Borrow tokens</Button>
+      <Button onClick={() => repayWS('1')}>rEPAY LOAN</Button>
+      <Button onClick={() => withdrawSTS('0.5')}>Withdrw Wts</Button>
+      <Button onClick={() => testAcessKey()}>Test access code keys</Button>
+      <Button onClick={() => handleTestBB()}>Test aain BB</Button>
     </div>
   );
 }

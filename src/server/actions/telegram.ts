@@ -11,8 +11,8 @@ import { verifyUser } from './user';
 export const MISSING_USERNAME_ERROR = 'No saved Telegram username found';
 export const BOT_NOT_STARTED_ERROR = 'Bot not started yet';
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
-const TELEGRAM_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME;
+const TELEGRAM_BOT_TOKEN = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN!;
+const TELEGRAM_BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
 const GET_BOT_INFO_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`;
 const GET_UPDATES_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
 const SEND_MESSAGE_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
@@ -21,7 +21,7 @@ interface CheckUserSetupResult {
   success: boolean;
   error?: string;
   userId?: string;
-  username?: string;
+  username?: string; //
   chatId?: string;
   botId?: string;
 }
@@ -34,14 +34,14 @@ interface TelegramActionData {
   chatId?: string | null;
 }
 
-const getBotUsername = async (): Promise<string> => {
+export const getBotUsername = async (): Promise<string> => {
   const response = await fetch(GET_BOT_INFO_URL);
   if (!response.ok) throw new Error('Failed to retrieve bot info');
   const data = await response.json();
   return data.result.username;
 };
 
-const getChatIdByUsername = async (
+export const getChatIdByUsername = async (
   username: string,
 ): Promise<string | null> => {
   const response = await fetch(GET_UPDATES_URL);

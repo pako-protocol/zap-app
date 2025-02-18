@@ -3,7 +3,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { type CoreMessage, type CoreUserMessage, generateText } from 'ai';
 import { BaseWallet, SolanaAgentKit, WalletAdapter } from 'solana-agent-kit';
-import { createClient, createWalletClient, http } from 'viem';
+import { Account, Address, createClient, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { sonic } from 'viem/chains';
 import { z } from 'zod';
@@ -158,8 +158,10 @@ export const getViemProvider = async () => {
     return { success: false, error: 'WALLET_NOT_FOUND' };
   }
 
-  const decryptedPk = await decryptPrivateKeyEvm(wallet.encryptedPrivateKey!);
-  const account = privateKeyToAccount(decryptedPk);
+  const decryptedPk = (await decryptPrivateKeyEvm(
+    wallet.encryptedPrivateKey!,
+  )) as Address;
+  const account = privateKeyToAccount(decryptedPk) as Account;
 
   const walletClient = createWalletClient({
     account,
@@ -167,7 +169,7 @@ export const getViemProvider = async () => {
     transport: http(),
   });
 
-  return { walletClient };
+  return { walletClient, account };
 };
 
 /*export const publicClient = createClient({
