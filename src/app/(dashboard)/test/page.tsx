@@ -3,6 +3,9 @@
 import React from 'react';
 
 import { siloAbi } from '@/abis';
+import MraketCard from '@/components/sonic/market-card';
+import PositionCard from '@/components/sonic/position-card';
+import TokenCard from '@/components/sonic/token-card';
 import { Button } from '@/components/ui/button';
 import { BORROWABLE_WS_DEPOSIT_ADDRESS } from '@/lib/constants';
 import { approveTokens } from '@/lib/sonic/approveAllowance';
@@ -20,6 +23,7 @@ import { withdrawSTS } from '@/lib/sonic/withdraw';
 import { getPoolMarkets } from '@/server/actions/getMarkets';
 import { getPoolTokens } from '@/server/actions/getTokens';
 import { getUserPositions } from '@/server/actions/getUserPositions';
+import { revalidateMarkets } from '@/server/actions/revalidateCache';
 import { getBotUsername } from '@/server/actions/telegram';
 import { dbCheckAccessCodeStatus } from '@/server/db/queries';
 
@@ -54,7 +58,7 @@ export default function page() {
   };
 
   const props2 = {
-    marketName: 'S-ETH',
+    marketName: 'stS-S',
   };
   const props3 = {
     marketId: '3',
@@ -118,6 +122,53 @@ export default function page() {
       console.log(error);
     }
   };
+
+  const fakeToken = {
+    name: 'fake',
+    symbol: 'FYK',
+    logo: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png',
+    tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  };
+
+  const fakeMarket = {
+    name: 'ETH-S',
+    baseSilo: {
+      name: 'ETH',
+      token: {
+        name: 'ETH',
+        symbol: 'S',
+        logo: 'https://assets.coingecko.com/coins/images/279/standard/ethereum.png',
+        tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      },
+    },
+    bridgeSilo: {
+      name: 'S',
+      token: {
+        name: 'Sonic',
+        symbol: 'S',
+        logo: 'https://assets.coingecko.com/coins/images/52937/standard/token-beets-staked-sonic.png',
+        tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      },
+    },
+    platform: {
+      name: 'Silo finance',
+    },
+  };
+
+  const fakePosition = {
+    healthFactor: '1',
+    borrowPowerUsed: '0',
+    silo0: {
+      collateralBalance: '2',
+      debtBalance: '0',
+      siloAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    },
+    silo1: {
+      collateralBalance: '0',
+      debtBalance: '0',
+      siloAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    },
+  };
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -148,6 +199,12 @@ export default function page() {
       <Button onClick={() => withdrawSTS('0.5')}>Withdrw Wts</Button>
       <Button onClick={() => testAcessKey()}>Test access code keys</Button>
       <Button onClick={() => handleTestBB()}>Test aain BB</Button>
+      <form action={revalidateMarkets}>
+        <Button>Revalidate markets</Button>
+      </form>
+      <h1 className="my-5 font-semibold">TSTING CARDS</h1>
+
+      <PositionCard position={fakePosition} />
     </div>
   );
 }

@@ -1,8 +1,19 @@
+import { revalidatePath } from 'next/cache';
+
 import { z } from 'zod';
 
 interface Silo {
   name: string;
   siloAddress: string;
+  aprBorrow: string;
+  aprDeposit: string;
+  availableToBorrow: string;
+  token: {
+    name: string;
+    symbol: string;
+    logo: string;
+    tokenAddress: string;
+  };
 }
 export interface MarketSchema {
   id: string;
@@ -26,6 +37,19 @@ interface MarketQueries {
   bridgeAsset?: string;
   baseAsset?: string;
 }
+const siloSchema = z.object({
+  name: z.string(),
+  siloAddress: z.string(),
+  aprBorrow: z.string(),
+  aprDeposit: z.string(),
+  availableToBorrow: z.string(),
+  token: z.object({
+    name: z.string(),
+    symbol: z.string(),
+    logo: z.string(),
+    tokenAddress: z.string(),
+  }),
+});
 const marketSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -39,14 +63,8 @@ const marketSchema = z.object({
   platform: z.object({
     name: z.string(),
   }),
-  baseSilo: z.object({
-    name: z.string(),
-    siloAddress: z.string(),
-  }),
-  bridgeSilo: z.object({
-    name: z.string(),
-    siloAddress: z.string(),
-  }),
+  baseSilo: siloSchema,
+  bridgeSilo: siloSchema,
 });
 
 const marketsSchema = z.object({
@@ -74,7 +92,7 @@ export const getPoolMarkets = async (
         next: {
           revalidate: 300, // Cache for 5 minutes
         },
-        /*cache: 'no-store',*/
+        // cache: 'no-store',
       },
     );
 

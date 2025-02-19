@@ -15,6 +15,9 @@ import {
 import { z } from 'zod';
 
 import { routerAbi, siloAbi } from '@/abis';
+import MraketCard from '@/components/sonic/market-card';
+import PositionCard from '@/components/sonic/position-card';
+import TokenCard from '@/components/sonic/token-card';
 import { ROUTER_ADDRESS } from '@/lib/constants';
 import { approveTokens } from '@/lib/sonic/approveAllowance';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
@@ -107,9 +110,7 @@ const tokens = {
       return (
         <div className="space-y-2">
           {typedResult.data.map((token, index) => (
-            <div key={index}>
-              <h1>Toke name : {token.name}</h1>
-            </div>
+            <TokenCard key={token.tokenAddress} token={token} />
           ))}
         </div>
       );
@@ -184,7 +185,7 @@ const markets = {
         return (
           <div className="relative overflow-hidden rounded-2xl bg-muted/50 p-4">
             <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">No traders found</p>
+              <p className="text-sm text-muted-foreground">No Market found</p>
             </div>
           </div>
         );
@@ -193,11 +194,7 @@ const markets = {
       return (
         <div className="space-y-2">
           {typedResult.data.map((market, index) => (
-            <div key={index}>
-              <h1>Toke name : {market.name}</h1>
-              <h1>Platform name : {market.platform.name}</h1>
-              <p>market silo address {market.baseSilo.siloAddress}</p>
-            </div>
+            <MraketCard key={index} market={market} />
           ))}
         </div>
       );
@@ -262,11 +259,7 @@ const allMarkets = {
       return (
         <div className="space-y-2">
           {typedResult.data.map((market, index) => (
-            <div key={index}>
-              <h1>Toke name : {market.name}</h1>
-              <h1>Platform name : {market.platform.name}</h1>
-              <p>market silo address {market.baseSilo.siloAddress}</p>
-            </div>
+            <MraketCard key={index} market={market} />
           ))}
         </div>
       );
@@ -342,11 +335,7 @@ const platformMarkets = {
       return (
         <div className="space-y-2">
           {typedResult.data.map((market, index) => (
-            <div key={index}>
-              <h1>Toke name : {market.name}</h1>
-              <h1>Platform name : {market.platform.name}</h1>
-              <p>market silo address {market.baseSilo.siloAddress}</p>
-            </div>
+            <MraketCard key={index} market={market} />
           ))}
         </div>
       );
@@ -415,11 +404,7 @@ const marketById = {
       return (
         <div className="space-y-2">
           {typedResult.data.map((market, index) => (
-            <div key={index}>
-              <h1>Toke name : {market.name}</h1>
-              <h1>Platform name : {market.platform.name}</h1>
-              <p>market silo address {market.baseSilo.siloAddress}</p>
-            </div>
+            <MraketCard key={index} market={market} />
           ))}
         </div>
       );
@@ -989,10 +974,7 @@ const positions = {
 
       return (
         <div className="space-y-2">
-          <div>
-            <h1>First token : {typedResult.data?.silo0.siloAddress}</h1>
-            <h1>Second token : {typedResult.data?.silo1.siloAddress}</h1>
-          </div>
+          <PositionCard position={typedResult.data} />
         </div>
       );
     },
