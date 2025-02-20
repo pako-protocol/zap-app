@@ -261,6 +261,7 @@ model Platform {
   name       String
   tvl        Decimal? @default(0.0)
   markets    Market[]
+  vaults     Vault[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -271,6 +272,8 @@ model Token {
   symbol       String  @unique
   logo         String
   tokenAddress String
+  vaultToken0 Vault[] @relation("VaultToken0")
+  vaultToken1 Vault[] @relation("VaultToken1")
   silos        Silo[]
 }
 
@@ -280,138 +283,33 @@ enum RiskLevel {
   HIGH
 }
 
-// MARKET RELATED SCHEMA
+model Vault {
+  id               String   @id @default(uuid())
+  name             String
+  vaultAddress     String   @unique
+  vaultType        VaultType @default(CONCENTRATED)
+  token0Id         String
+  token1Id         String
+  isToken0Allowed  Boolean
+  isToken1Allowed  Boolean
+  gauge            String
+  platformId       String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  token0           Token    @relation("VaultToken0", fields: [token0Id], references: [id])
+  token1           Token    @relation("VaultToken1", fields: [token1Id], references: [id])
+  platform         Platform @relation(fields: [platformId], references: [id])
 
-/*model Market {
-  id            String   @id @default(uuid())
-  name          String
-  marketId     Int
-  baseAsset     String   // The main asset (e.g., ETH, wBTC)
-  bridgeAsset   String   // The bridge asset (e.g., USDC)
-  tvl          Float?    // Total value locked in the market
-  volume        Float?   // Trading volume for analytics
-  silos         Silo[]   // References to associated silos
-  platform      Platform @relation(fields: [platformId], references: [id])
-  platformId    String
-   protocolFee Float? 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
+  // Indexes
+  @@index([name])
+  @@index([token0Id])
+  @@index([token1Id])
   @@index([platformId])
 }
 
-model Silo {
-  id          String   @id @default(uuid())
-  name         String
-  sonicPoint Int
-  maxLtv        Float
-  liquidationThreshold   Float
-  market      Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
-  marketId    String
-  tokenId     String   // The asset in this silo
-  token       Token    @relation(fields: [tokenId], references: [id])
-  aprBorrow   Float?    // Current borrow APR
-  aprDeposit  Float?   // Current deposit APR
-  protocolFee Float?   // Optional fee data
-  tvl         Float?    // Total value locked in this silo
-  utilization Float?
-  liquidationFee Float?
-   riskLevel     RiskLevel @default(LOW)
-  availableToBorrow Float? //A vailable to loan
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-@@index([marketId])    
-@@index([tokenId]) 
+enum VaultType {
+  CONCENTRATED
+  STABLE
+  VOLATILE
 }
-
-model Platform {
-  id         String  @id @default(uuid())
-  name       String  // Name of the platform (e.g., Silo Finance)
-  tvl        Float   // Aggregated TVL across all markets
-  markets    Market[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Token {
-  id        String  @id @default(uuid())
-  name      String
-  symbol    String  @unique
-  logo      String
-  tokenAddress String
-  markets   Silo[]
-}
-
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-}*/
-
-/*model Market {
-  id           String   @id @default(uuid())
-  name         String 
-  baseAsset    String
-  bridgeAsset  String
-  tvl          Decimal? @default(0.0)
-  volume       Float? @default(0.0)
-  protocolFee  Decimal? @default(0.0)
-  silos        Silo[]
-  platform     Platform @relation(fields: [platformId], references: [id])
-  platformId   String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([platformId])
-}
-
-model Silo {
-  id              String   @id @default(uuid())
-  name            String
-  sonicPoint      Int?
-  siloAddress     String  @unique
-  ltv             Decimal?
-  liquidationThreshold Decimal?
-  tvl             Decimal? @default(0.0)
-  market          Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
-  marketId        String
-  tokenId         String
-  token           Token    @relation(fields: [tokenId], references: [id])
-  aprBorrow       Decimal? @default(0.0)
-  aprDeposit      Decimal? @default(0.0)
-  protocolFee     Decimal? @default(0.0)
-  utilization     Decimal? @default(0.0)
-  liquidationFee  Decimal? @default(0.0)
-  riskLevel       RiskLevel @default(LOW)
-  availableToBorrow Decimal? @default(0.0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([marketId])
-  @@index([tokenId])
-}
-
-model Platform {
-  id         String  @id @default(uuid())
-  name       String
-  tvl        Decimal? @default(0.0)
-  markets    Market[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Token {
-  id           String  @id @default(uuid())
-  name         String
-  symbol       String  @unique
-  logo         String
-  tokenAddress String
-  silos        Silo[]
-}
-
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-}*/

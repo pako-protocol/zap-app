@@ -8,7 +8,8 @@ import PositionCard from '@/components/sonic/position-card';
 import TokenCard from '@/components/sonic/token-card';
 import { Button } from '@/components/ui/button';
 import { BORROWABLE_WS_DEPOSIT_ADDRESS } from '@/lib/constants';
-import { approveTokens } from '@/lib/sonic/approveAllowance';
+import { addLiquidity } from '@/lib/sonic/addLiquidity';
+import { approveTokens, checkAllowance } from '@/lib/sonic/approveAllowance';
 import { borrowWS } from '@/lib/sonic/borrowWs';
 import { depositWts } from '@/lib/sonic/depositWs';
 import {
@@ -169,6 +170,11 @@ export default function page() {
       siloAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     },
   };
+
+  const props5 = {
+    amount0: '1',
+    amount1: '0',
+  };
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -202,6 +208,8 @@ export default function page() {
       <form action={revalidateMarkets}>
         <Button>Revalidate markets</Button>
       </form>
+      <Button onClick={() => addLiquidity(props5)}>Test Add liquidity</Button>
+      <Button onClick={() => checkAllowance()}>Check allowamce</Button>
       <h1 className="my-5 font-semibold">TSTING CARDS</h1>
 
       <PositionCard position={fakePosition} />
