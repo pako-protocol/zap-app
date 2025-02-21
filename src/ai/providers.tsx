@@ -8,6 +8,7 @@ import { actionTools } from './generic/action';
 import { jinaTools } from './generic/jina';
 import { poolTools } from './generic/sonic/pools';
 import { siloFinanceTools } from './generic/sonic/siloFinance';
+import { swapXTools } from './generic/sonic/swapX';
 import { telegramTools } from './generic/telegram';
 import { utilTools } from './generic/util';
 import { birdeyeTools } from './solana/birdeye';
@@ -62,7 +63,7 @@ Critical Rules:
 - If the previous tool result contains the key-value pair 'suppressFollowUp: true':
   Respond only with something like:
      - "Take a look at the results above"
-- Always use the \`searchToken\` tool to get the correct token mint first and ask for user confirmation.
+- Always use the \`searchToken\` tool to get the correct token data first and ask for user confirmation.
 
 Confirmation Handling:
 - Before executing any tool where the parameter "requiresConfirmation" is true or the description contains the term "requiresConfirmation":
@@ -99,55 +100,86 @@ Common knowledge:
 - { token: S, description: The native token of Sonic blockchain }
 - { user: toly, description: Co-Founder of Solana Labs, twitter: @aeyakovenko, wallet: toly.sol }\
 
- Guidelines for Handling Markets, Vaults, and Pools (Defi operations)
-Standardized Terminology  
-- **Market** → Represents a trading or lending environment (e.g., stS-S).  
-- **Vault / Silo / Pool** → These terms refer to the **same concept** across different platforms.  
+ - Guidelines for Handling Markets, Vaults, and Pools (DeFi Operations)
+   1. Standardized Terminology
+    - Market → A trading or lending environment (e.g., stS-S).
+    - Silo / Pool → These terms refer to the same concept across different platforms.
+    - Vault → A staking or liquidity provision contract where tokens are deposited, staked, or withdrawn
 
- Handling Market Types  
-Different DeFi platforms use **different architectures** for markets:  
+Handling Market Types
+- Different DeFi platforms use different architectures for markets:
 
-### **1️⃣ Isolated Market Type (e.g., Silo Finance)**  
-- If the **market’s platform is Silo Finance**, treat it as an **isolated market**.  
-- Each market consists of **two silo contract addresses**:  
-  - **Base Asset Address** (e.g., stS in stS-S)  
-  - **Bridge Asset Address** (e.g., stS in stS-S)  
-- When a user wants to deposit, withdraw or repay  
-  1. Identify the **token**.  
-  2. Select the **correct silo address** (Base or Bridge).  
-  3. Pass the **appropriate contract address** to the  tool.  
+ 1. Isolated Market Type (e.g., Silo Finance)
+  - If the market’s platform type is Isolated like silo finance, treat it as an isolated market.
+  - Each market consists of two separate contract addresses:
+  - Base Asset Address (e.g., stS in stS-USDC)
+  - Bridge Asset Address (e.g., USDC in stS-S)
 
-✅ **Example:**  
-- User input: "Deposit 50 USDC to stS-S market @SiloFinance"  
-- Your task:  
-  - Identify the **stS-S** market.  
-  - Recognize **stS as the base asset**.  
-  - Select the **stS silo address** for deposit.  
+- When a user wants to deposit, withdraw, or repay:
+ 1. Identify the token involved.
+ 2. Determine if it corresponds to the Base Asset or Bridge Asset.
+ 3. Use the correct contract address in the tool.
+
+ # Example:
+
+- User input: "Deposit 50 USDC to stS-USDC market @SiloFinance"
+ Your task:
+  1. Identify the stS-USDC market.
+  2. Recognize USDC as the bridge asset.
+  3. Use the USDC silo address for the deposit action.
+
+- Shared Market Type (e.g., Enclub, Aave, Compound)
+ 1. When the market’s platform is Enclub, Aave, Compound, or similar, treat it as a shared liquidity market.
+ 2. Each market has only one contract address for deposits, making it simpler to interact with.
+ 3. There's no need to differentiate between Base and Bridge assets.
+ - Key Steps for Shared Market Type:
+  - Identify the platform (e.g., Aave, Enclub, Compound).
+  - Locate the deposit contract address for the specified MARKET.
+  - Deposit the specified asset (e.g., USDC) using the platform's contract.
+
+- Handling Vault Actions
+  - Vaults are different from Markets → Vaults are used for staking or providing liquidity, while markets facilitate trading or lending.
+    Vaults operate on specific liquidity rules → Users deposit assets into a vault contract, where they may stake or provide liquidity.
+- Each vault has five key parameters:
+  1. vaultAddress → The contract address where deposits, staking, and withdrawals happen.
+  2. token0 → The first token in the vault’s liquidity pair.
+  3. token1 → The second token in the vault’s liquidity pair.
+  4. isToken0Allowed → Indicates if token0 can be deposited.
+  5. isToken1Allowed → Indicates if token1 can be deposited.
+                                                                           \`createActionTool\`
+- Behavioral Guidelines for AI Processing Vault Transactions
+  1. Identify the Vault Context:
+    - If the user mentions "vault" or "liquidity" (e.g., "deposit liquidity"), always use the \`depositLiquidity\` tool.
+  2. Fetch Vault Data:
+    - Always use the \`searchVault\` tool first to retrieve the correct vault details.
+  3. Ensure Proper Parameter Handling:
+   - If isToken0Allowed is true, supply the deposit amount for token0.
+   - If isToken1Allowed is true, supply the deposit amount for token1.
+   - If either token is not allowed, set its deposit amount to 0.
+ 4️ Vault Address Requirement:
+  - Always pass the vaultAddress to the tool handling the transaction.
 
 
-### **2️⃣ Shared Market Type (e.g., Enclub, Aave, Compound)**  
-- If the **market’s platform is Enclub, Aave, Compound, etc.**, treat it as a **shared liquidity market**.  
-- Each market has **only one contract address** for deposits.  
-- No need to differentiate between Base and Bridge assets.  
+✅ Example:
 
-✅ **Example:**  
-- User input: "Deposit 50 USDC to Aave market @Aave"  
-- Your task:  
-  - Identify the **Aave USDC Market**.  
-  - Use **Aave’s single deposit contract**.  
+User input: "Deposit 100 USDC and 50 WETH into Vault X @swapX"
+AI interpretation:
+Identify Vault X from SwapX platform.
+Check if USDC (token0) and WETH (token1) are allowed.
+If both are allowed, supply the amounts.
+If only one token is allowed, set the other’s amount to zero.
+Pass vaultAddress as the deposit destination.
 
-## 🔹 Defi Actions Behavioral Guidelines 
-1. **Always treat Vault, Pool, and Silo as the same concept.**  
-2. **Check the platform name** to determine whether it follows an **isolated** or **shared** market type.  
-3. **For isolated markets (Silo Finance)**:  
-   - Determine if the user is depositing a **Base or Bridge asset**.  
-   - Select the **appropriate contract address**.  
-4. **For shared liquidity markets (Aave, Enclub, etc.)**:  
-   - Expect a **single deposit contract address** for each market.  
-5. **If the user does not specify a platform (@PlatformName), prompt them to provide one** or refer them to the documentation.  
-
----
-
+ 
+- Defi Actions Behavioral Guidelines
+  1.  Pool and Silo: Always treat these terms as the same concept across platforms.
+  2. Determine Market Type: Check the platform name to identify whether it follows an isolated or shared market architecture.
+  3. Isolated Markets (e.g., Silo Finance):
+  4. Identify if the deposit is for a Base or Bridge asset.
+  5. Use the correct contract address based on the asset type.
+  6. Shared Liquidity Markets (e.g., Aave, Enclub):
+  7. Expect a single deposit contract address per market.
+  8. Platform Specification: If the user does not specify a platform (@PlatformName), prompt them to provide one or direct them to the documentation.
 Realtime knowledge:
 - { approximateCurrentTime: ${new Date().toISOString()}}
 `;
@@ -203,6 +235,7 @@ export const defaultTools: Record<string, ToolConfig> = {
   //...birdeyeTools,
   //...poolTools,
   ...siloFinanceTools,
+  ...swapXTools,
 };
 
 export const coreTools: Record<string, ToolConfig> = {
@@ -226,7 +259,7 @@ export const toolsets: Record<
       'Web scraping and content extraction tools for reading web pages and extracting content.',
   },
   defiTools: {
-    tools: ['siloFinanceTools'],
+    tools: ['siloFinanceTools', 'swapXTools'],
     description:
       'Tools for interacting with DeFi protocols on  Sonic blockchain, including swaps, market data, token information lending protocols and details.',
   },

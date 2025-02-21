@@ -22,8 +22,7 @@ import { ROUTER_ADDRESS } from '@/lib/constants';
 import { approveTokens } from '@/lib/sonic/approveAllowance';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
 import { getViemProvider } from '@/server/actions/ai';
-import { MarketPools, getPools } from '@/server/actions/getMarketPools';
-import { MarketSchema, getPoolMarkets } from '@/server/actions/getMarkets';
+import { MarketSchema, getMarkets } from '@/server/actions/getMarkets';
 import { PoolToken, getPoolTokens } from '@/server/actions/getTokens';
 import {
   PositionSchema,
@@ -31,7 +30,7 @@ import {
 } from '@/server/actions/getUserPositions';
 import { formatForURL } from '@/server/utils';
 
-interface SimulationResults {
+export interface SimulationResults {
   request: {
     address: string;
     account: {
@@ -119,7 +118,7 @@ const tokens = {
 };
 
 const markets = {
-  getPoolMarket: {
+  getMarket: {
     displayName: 'Get Market Data 📊',
     description:
       'Fetch market data using market name, base asset, or bridge asset. Retrieve details such as base silo, bridge silo, and supported tokens for comprehensive market insights.',
@@ -149,7 +148,7 @@ const markets = {
         if (params.bridgeAssetSymbol) {
           filters.bridgeAsset = { symbol: params.bridgeAssetSymbol };
         }*/
-        const marketsData = await getPoolMarkets(filters);
+        const marketsData = await getMarkets(filters);
         return {
           success: true,
           data: marketsData,

@@ -21,9 +21,10 @@ import { getDepositedBalanceWs } from '@/lib/sonic/ftechDepositedAmount';
 import { repayWS } from '@/lib/sonic/repay';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
 import { withdrawSTS } from '@/lib/sonic/withdraw';
-import { getPoolMarkets } from '@/server/actions/getMarkets';
+import { getMarkets } from '@/server/actions/getMarkets';
 import { getPoolTokens } from '@/server/actions/getTokens';
 import { getUserPositions } from '@/server/actions/getUserPositions';
+import { getVaults } from '@/server/actions/getVaults';
 import { revalidateMarkets } from '@/server/actions/revalidateCache';
 import { getBotUsername } from '@/server/actions/telegram';
 import { dbCheckAccessCodeStatus } from '@/server/db/queries';
@@ -76,7 +77,19 @@ export default function page() {
 
   const handleFetchMarkets = async () => {
     try {
-      const tokens = await getPoolMarkets(props2);
+      const tokens = await getMarkets(props2);
+      console.log('Tokens', tokens);
+    } catch (error) {
+      console.log('error when fetching', error);
+    }
+  };
+
+  const handleFetchVaults = async () => {
+    try {
+      const yap = {
+        vaultName: 'Ws-WETH',
+      };
+      const tokens = await getVaults(yap);
       console.log('Tokens', tokens);
     } catch (error) {
       console.log('error when fetching', error);
@@ -209,6 +222,8 @@ export default function page() {
         <Button>Revalidate markets</Button>
       </form>
       <Button onClick={() => addLiquidity(props5)}>Test Add liquidity</Button>
+      <Button onClick={() => handleFetchVaults()}>Test Fetch vaults</Button>
+
       <Button onClick={() => checkAllowance()}>Check allowamce</Button>
       <h1 className="my-5 font-semibold">TSTING CARDS</h1>
 

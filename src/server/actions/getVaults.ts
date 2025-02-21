@@ -1,81 +1,68 @@
 import { revalidatePath } from 'next/cache';
 
+import { Address } from 'viem';
 import { z } from 'zod';
 
-interface Silo {
+interface Token {
   name: string;
-  siloAddress: string;
-  aprBorrow: string;
-  aprDeposit: string;
-  availableToBorrow: string;
-  token: {
-    name: string;
-    symbol: string;
-    logo: string;
-    tokenAddress: string;
-  };
+  symbol: string;
+  logo: string;
+  tokenAddress: string;
 }
-export interface MarketSchema {
+
+interface Platform {
+  name: string;
+}
+export interface VaultSchema {
   id: string;
   name: string;
-  baseSiloId: string;
-  bridgeSiloId: string;
-  tvl: string;
-  protocolFee: string;
-  marketId: string;
-  volume: string;
+  vaultAddress: string;
+  vaultType: string;
+  isToken0Allowed: boolean;
+  isToken1Allowed: boolean;
+  gauge: string;
+  token0: Token;
+  token1: Token;
   platformId: string;
-  platform: {
-    name: string;
-  };
-  baseSilo: Silo;
-  bridgeSilo: Silo;
+  platform: Platform;
 }
 
 interface MarketQueries {
-  marketName?: string;
-  bridgeAsset?: string;
-  baseAsset?: string;
+  vaultName?: string;
+  platformName?: string;
 }
-const siloSchema = z.object({
+
+const tokenSchema = z.object({
   name: z.string(),
-  siloAddress: z.string(),
-  aprBorrow: z.string(),
-  aprDeposit: z.string(),
-  availableToBorrow: z.string(),
-  token: z.object({
-    name: z.string(),
-    symbol: z.string(),
-    logo: z.string(),
-    tokenAddress: z.string(),
-  }),
+  symbol: z.string(),
+  logo: z.string(),
+  tokenAddress: z.string(),
 });
-const marketSchema = z.object({
+const vaultSchema = z.object({
   id: z.string(),
   name: z.string(),
-  baseSiloId: z.string(),
-  bridgeSiloId: z.string(),
-  tvl: z.string(),
-  protocolFee: z.string(),
-  marketId: z.string(),
-  volume: z.string(),
+  vaultAddress: z.string(),
+  vaultType: z.string(),
+  isToken0Allowed: z.boolean(),
+  isToken1Allowed: z.boolean(),
+  gauge: z.string(),
+  token0: tokenSchema,
+  token1: tokenSchema,
   platformId: z.string(),
   platform: z.object({
     name: z.string(),
   }),
-  baseSilo: siloSchema,
-  bridgeSilo: siloSchema,
 });
 
 const marketsSchema = z.object({
   data: z.object({
-    items: z.array(marketSchema),
+    items: z.array(vaultSchema),
   }),
 });
 
-export const getMarkets = async (
+export const getVaults = async (
   params?: MarketQueries,
-): Promise<MarketSchema[]> => {
+): Promise<VaultSchema[]> => {
   try {
     /*const queryParams = new URLSearchParams({
       symbol,
@@ -83,11 +70,11 @@ export const getMarkets = async (
 
     const queryParams = new URLSearchParams();
 
-    if (params?.marketName) {
-      queryParams.append('marketName', params?.marketName); // ✅ Ensures symbol is only added if defined
+    if (params?.vaultName) {
+      queryParams.append('vaultName', params?.vaultName); // ✅ Ensures symbol is only added if defined
     }
     const response = await fetch(
-      `http://localhost:5000/api/v1/markets/get-markets?` + queryParams,
+      `http://localhost:5000/api/v1/vaults/get-vaults?` + queryParams,
       {
         next: {
           revalidate: 300, // Cache for 5 minutes
@@ -120,16 +107,15 @@ export const getMarkets = async (
       parsed.data.items.map(async (market) => ({
         id: market.id,
         name: market.name,
-        baseSiloId: market.baseSiloId,
-        bridgeSiloId: market.bridgeSiloId,
-        tvl: market.tvl,
-        protocolFee: market.protocolFee,
-        marketId: market.protocolFee,
-        volume: market.volume,
         platformId: market.platformId,
         platform: market.platform,
-        baseSilo: market.baseSilo,
-        bridgeSilo: market.bridgeSilo,
+        token0: market.token0,
+        token1: market.token1,
+        isToken0Allowed: market.isToken0Allowed,
+        isToken1Allowed: market.isToken1Allowed,
+        vaultType: market.vaultType,
+        vaultAddress: market.vaultAddress,
+        gauge: market.gauge,
       })),
     );
   } catch (error) {
