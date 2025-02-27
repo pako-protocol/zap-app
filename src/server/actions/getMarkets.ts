@@ -2,12 +2,21 @@ import { revalidatePath } from 'next/cache';
 
 import { z } from 'zod';
 
+interface SiloRewards {
+  xpPerDollarDeposit: number;
+  xpPerDollarBorrow: number;
+  sTokenRewardAPR: number;
+  sonicXpMultiplier: number;
+  sonicXpMultiplierAction: string;
+}
+
 interface Silo {
   name: string;
   siloAddress: string;
   aprBorrow: string;
   aprDeposit: string;
   availableToBorrow: string;
+  siloRewards: SiloRewards;
   token: {
     name: string;
     symbol: string;
@@ -37,12 +46,22 @@ interface MarketQueries {
   bridgeAsset?: string;
   baseAsset?: string;
 }
+
+const rewardObject = z.object({
+  xpPerDollarDeposit: z.number(),
+  xpPerDollarBorrow: z.number(),
+  sTokenRewardAPR: z.number(),
+  sonicXpMultiplier: z.number(),
+  sonicXpMultiplierAction: z.string(),
+});
+
 const siloSchema = z.object({
   name: z.string(),
   siloAddress: z.string(),
   aprBorrow: z.string(),
   aprDeposit: z.string(),
   availableToBorrow: z.string(),
+  siloRewards: rewardObject,
   token: z.object({
     name: z.string(),
     symbol: z.string(),

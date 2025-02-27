@@ -24,7 +24,7 @@ import { SimulationResults } from './siloFinance';
 // GET VAULT BY NAME
 const vaults = {
   searchVault: {
-    displayName: '🔍 Get Vault Details',
+    displayName: '🔍 Search Vault',
     description:
       'Retrieve details of a specific vault by its name, including supported assets, and contract addresses.',
     parameters: z.object({
@@ -167,7 +167,7 @@ const addLiquidity = {
   depositLiquidity: {
     displayName: 'Provide Liquidity to a Vault',
     description:
-      'Depoisit liquidity into a specified vault on a selected platform by supplying two token amounts and the vault’s contract address',
+      'Depoisit liquidity into @swapX platform  use the \`searchVault\` tool to get the correct vault data',
     parameters: z.object({
       platformName: z
         .string()
@@ -193,7 +193,7 @@ const addLiquidity = {
           console.log('Vault not found');
           return { success: false, error: 'No vault found' };
         }
-
+        console.log('Vault found', vaultFound);
         const amount0InWei = parseUnits(params.amount0, 18);
         const amount1InWei = parseUnits(params.amount1, 18);
 
@@ -202,10 +202,8 @@ const addLiquidity = {
           return { success: false, error: 'Amount must be greater than 0' };
         }
 
-        const token0Allowed =
-          vaultFound.isToken0Allowed || amount0InWei == BigInt(0);
-        const token1Allowed =
-          vaultFound.isToken1Allowed || amount1InWei == BigInt(0);
+        const token0Allowed = vaultFound.isToken0Allowed;
+        const token1Allowed = vaultFound.isToken1Allowed;
         if (!token0Allowed || !token1Allowed) {
           let message = '';
           if (!token0Allowed) message += `(${vaultFound.token0.symbol}) `;
@@ -310,7 +308,7 @@ const addLiquidity = {
         }
 
         // ✅ Check allowance before approving
-
+        console.log('Is token 1 allowed', token1Allowed);
         if (token1Allowed) {
           const currentAllowance = (await testPublicClient.readContract({
             abi: erc20Abi,
@@ -355,10 +353,8 @@ const addLiquidity = {
           request,
           params,
         };
-        return {
-          success: true,
-          data: returnData,
-        };
+        console.log('Success is ', true);
+        return { success: true, data: 'SUCCESS' };
       } catch (error) {
         return {
           success: false,
@@ -369,11 +365,10 @@ const addLiquidity = {
     render: (result: unknown) => {
       const typedResult = result as {
         success: boolean;
-        data?: SimulationResults[];
+        data?: SimulationResults;
         error?: string;
       };
-      console.log('Token results', typedResult);
-
+      console.log('Render function called:', result);
       if (!typedResult.success) {
         return (
           <div className="relative overflow-hidden rounded-2xl bg-destructive/5 p-4">
@@ -385,19 +380,10 @@ const addLiquidity = {
           </div>
         );
       }
-      if (!typedResult.data?.length) {
-        return (
-          <div className="relative overflow-hidden rounded-2xl bg-muted/50 p-4">
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">No vault found</p>
-            </div>
-          </div>
-        );
-      }
 
       return (
         <div className="space-y-2">
-          <h1>Simulation results here</h1>
+          <h1>This is the result of simulation</h1>
         </div>
       );
     },

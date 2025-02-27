@@ -6,13 +6,14 @@ import {
   ETH_ADDRESS,
   ETH_SILO,
   ROUTER_ADDRESS,
+  S_BASE,
   WS_ADDRESS,
 } from '../constants';
-import { approveTokens } from './approveAllowance';
+import { ApproveProps, approveTokens } from './approveAllowance';
 import { testPublicClient } from './sonicClient';
 
 export async function depositWts(amount: string) {
-  const account2 = '0x2237A1E5Ed40758752a7Da5F118057af9efA0607'; //'0x4c9972f2AA16B643440488a788e933c139Ff0323';
+  const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323'; //'0x4c9972f2AA16B643440488a788e933c139Ff0323';
 
   console.log('Preparing to deposit stS tokens to Silo Finance...');
 
@@ -25,7 +26,7 @@ export async function depositWts(amount: string) {
 
     const userBalance = (await testPublicClient.readContract({
       abi: erc20Abi,
-      address: ETH_ADDRESS,
+      address: WS_ADDRESS,
       functionName: 'balanceOf',
       args: [account2],
     })) as bigint;
@@ -36,11 +37,10 @@ export async function depositWts(amount: string) {
       );
       return { success: false, error: 'NOT_ENOUGH_BALANCE' }; // ✅ Stop execution
     }
-
-    // ✅ Check allowance before approving
+    console.log('User balance is', userBalance); // ✅ Check allowance before approving
     const currentAllowance = (await testPublicClient.readContract({
       abi: erc20Abi,
-      address: ETH_ADDRESS,
+      address: WS_ADDRESS,
       functionName: 'allowance',
       args: [account2, ROUTER_ADDRESS],
     })) as bigint;
@@ -49,7 +49,12 @@ export async function depositWts(amount: string) {
       console.log(
         `Current allowance: ${formatUnits(currentAllowance, 18)}. Approving more...`,
       );
-      const approval = await approveTokens(amount);
+      const props: ApproveProps = {
+        amount: amount,
+        target: WS_ADDRESS,
+        spender: ROUTER_ADDRESS,
+      };
+      const approval = await approveTokens(props);
       if (approval?.success === false) {
         console.log('Token approval failed:', approval.error);
         return { success: false, error: 'Token approval failed' };
@@ -81,8 +86,8 @@ export async function depositWts(amount: string) {
         [
           {
             actionType: depositActionType,
-            silo: ETH_SILO,
-            asset: ETH_ADDRESS,
+            silo: S_BASE,
+            asset: WS_ADDRESS,
             options: options,
           },
         ],

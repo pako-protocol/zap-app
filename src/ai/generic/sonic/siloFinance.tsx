@@ -19,10 +19,11 @@ import MraketCard from '@/components/sonic/market-card';
 import PositionCard from '@/components/sonic/position-card';
 import TokenCard from '@/components/sonic/token-card';
 import { ROUTER_ADDRESS } from '@/lib/constants';
-import { approveTokens } from '@/lib/sonic/approveAllowance';
+import { ApproveProps, approveTokens } from '@/lib/sonic/approveAllowance';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
 import { getViemProvider } from '@/server/actions/ai';
 import { MarketSchema, getMarkets } from '@/server/actions/getMarkets';
+import { RewardSchema, getSiloRewards } from '@/server/actions/getSiloRewards';
 import { PoolToken, getPoolTokens } from '@/server/actions/getTokens';
 import {
   PositionSchema,
@@ -83,7 +84,6 @@ const tokens = {
         data?: PoolToken[];
         error?: string;
       };
-      console.log('Token results', typedResult);
 
       if (!typedResult.success) {
         return (
@@ -121,7 +121,7 @@ const markets = {
   getMarket: {
     displayName: 'Get Market Data 📊',
     description:
-      'Fetch market data using market name, base asset, or bridge asset. Retrieve details such as base silo, bridge silo, and supported tokens for comprehensive market insights.',
+      'Fetch market data using market name, base asset, or bridge asset. Retrieve details including silo rewards',
     parameters: z.object({
       marketName: z.string().describe('Market Name (e.g., "stS-S", "S-USDC")'),
       baseAssetSymbol: z
@@ -149,6 +149,7 @@ const markets = {
           filters.bridgeAsset = { symbol: params.bridgeAssetSymbol };
         }*/
         const marketsData = await getMarkets(filters);
+        console.log('This is markets data', marketsData);
         return {
           success: true,
           data: marketsData,
@@ -167,7 +168,6 @@ const markets = {
         data?: MarketSchema[];
         error?: string;
       };
-      console.log('Token results', typedResult);
 
       if (!typedResult.success) {
         return (
@@ -205,7 +205,7 @@ const allMarkets = {
   getAvailableMarkets: {
     displayName: '🌐 Get avaialble markets',
     description:
-      'Retrieve a list of all available markets and pools . This tool fetches details of each market/pool, including market ID, asset pairs / silo pairs, and other relevant information',
+      'Fetch all available markets on SiloFinance, including reward details for each Silo',
     parameters: z.object({
       addresss: z.string().describe('User wallet address'),
     }),
@@ -213,7 +213,8 @@ const allMarkets = {
       params: z.infer<typeof this.parameters>,
     ): Promise<{ success: boolean; data?: any; error?: string }> {
       try {
-        const marketsData = await getPoolMarkets();
+        const marketsData = await getMarkets();
+        console.log('available markets', marketsData);
         return {
           success: true,
           data: marketsData,
@@ -232,7 +233,6 @@ const allMarkets = {
         data?: MarketSchema[];
         error?: string;
       };
-      console.log('Token results', typedResult);
 
       if (!typedResult.success) {
         return (
@@ -289,7 +289,7 @@ const platformMarkets = {
           platformName: platformName,
         };
 
-        const marketsData = await getPoolMarkets(filters);
+        const marketsData = await getMarkets(filters);
         return {
           success: true,
           data: marketsData,
@@ -308,7 +308,6 @@ const platformMarkets = {
         data?: MarketSchema[];
         error?: string;
       };
-      console.log('Token results', typedResult);
 
       if (!typedResult.success) {
         return (
@@ -343,10 +342,10 @@ const platformMarkets = {
 };
 
 const marketById = {
-  getMarketById: {
-    displayName: '🌐 Get market by Id',
+  getMarketName: {
+    displayName: '🌐 Get market by name',
     description:
-      'Retrieve details of a specific market or pool using its unique ID. The user must provide the market or pool ID to get information about the assets, token pairs, and other relevant data associated with the specified market or pool.',
+      'Retrieve details of a specific market on siloFinance using its name.',
     parameters: z.object({
       marketId: z.string().describe('Market Name (e.g., "stS-S", "S-USDC")'),
     }),
@@ -358,7 +357,7 @@ const marketById = {
           marketId: params.marketId,
         };
 
-        const marketsData = await getPoolMarkets(filters);
+        const marketsData = await getMarkets(filters);
         return {
           success: true,
           data: marketsData,
@@ -377,7 +376,6 @@ const marketById = {
         data?: MarketSchema[];
         error?: string;
       };
-      console.log('Token results', typedResult);
 
       if (!typedResult.success) {
         return (
@@ -411,16 +409,97 @@ const marketById = {
   },
 };
 
+// GET SILO REWARD
+
+const siloRewards = {
+  getSiloRewards: {
+    displayName: '🌐 Get silo rewards',
+    description:
+      'Fetch reward details for a specific Silo on SiloFinance, including accrued incentives. Use \`getMarketByName\` to identify the correct Silo and its details',
+    parameters: z.object({
+      siloAddress: z
+        .string()
+        .describe('silo contract Address which to fetch reward details'),
+    }),
+    execute: async function (
+      params: z.infer<typeof this.parameters>,
+    ): Promise<{ success: boolean; data?: any; error?: string }> {
+      try {
+        const filters: any = {
+          siloId: params.siloAddress,
+        };
+        console.log('Getreward params', params);
+        const rewardsData = await getSiloRewards(filters);
+        return {
+          success: true,
+          data: rewardsData,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error:
+            error instanceof Error ? error.message : 'Failed to search markets',
+        };
+      }
+    },
+    render: (result: unknown) => {
+      const typedResult = result as {
+        success: boolean;
+        data?: RewardSchema;
+        error?: string;
+      };
+
+      if (!typedResult.success) {
+        return (
+          <div className="relative overflow-hidden rounded-2xl bg-destructive/5 p-4">
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-destructive">
+                Error: {typedResult.error}
+              </p>
+            </div>
+          </div>
+        );
+      }
+      if (!typedResult) {
+        return (
+          <div className="relative overflow-hidden rounded-2xl bg-muted/50 p-4">
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-muted-foreground">
+                No Result something might be went wrong
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-2">
+          <h2>Rewards card will be sen here</h2>
+          <h2>
+            StokenRewards : {typedResult.data?.siloRewards.sTokenRewardAPR}
+          </h2>
+          <h2>sonicXX : {typedResult.data?.siloRewards.sonicXpMultiplier}</h2>
+          <h2>
+            xPer dollar : {typedResult.data?.siloRewards.xpPerDollarBorrow}
+          </h2>
+          <h2>
+            x perDeposit{typedResult.data?.siloRewards.xpPerDollarDeposit}
+          </h2>
+        </div>
+      );
+    },
+  },
+};
+
 const deposit = {
   depositToken: {
     displayName: '🏦 Deposit token to Silo',
     description:
-      'Deposits a specified amount of a token into the Silo Finance platform using the provided market ID. The AI will use the token symbol and market ID to determine the correct lending market for the deposi',
+      'Deposits a specified amount of a token into @siloFinance platform using the provided market ID. use \`getMarket\` tool to et correct market data',
 
     parameters: z.object({
       address: z.string().describe('User Wallet Address'),
       assetAddress: z.string().describe('Token Address to deposit'),
-
       amount: z.string().describe('Amount of token to deposit'),
       marketAddress: z.string().describe('Silo Market contract address'),
     }),
@@ -443,7 +522,7 @@ const deposit = {
           abi: erc20Abi,
           address: params.assetAddress as Address,
           functionName: 'balanceOf',
-          args: [params.address as Address],
+          args: [account2],
         })) as bigint;
 
         if (userBalance < amountInWei) {
@@ -458,14 +537,20 @@ const deposit = {
           abi: erc20Abi,
           address: params.assetAddress as Address,
           functionName: 'allowance',
-          args: [params.address as Address, ROUTER_ADDRESS],
+          args: [account2, ROUTER_ADDRESS],
         })) as bigint;
 
+        console.log('current allowance', currentAllowance);
         if (currentAllowance < amountInWei) {
           console.log(
             `Current allowance: ${formatUnits(currentAllowance, 18)}. Approving more...`,
           );
-          const approval = await approveTokens(params.amount);
+          const props: ApproveProps = {
+            amount: params.amount,
+            target: params.assetAddress as Address,
+            spender: ROUTER_ADDRESS,
+          };
+          const approval = await approveTokens(props);
           if (approval?.success === false) {
             console.log('Token approval failed:', approval.error);
             return { success: false, error: 'Token approval failed' };
@@ -502,13 +587,14 @@ const deposit = {
             ],
           ],
 
-          account: params.address as Address,
+          account: account2,
         });
 
         const returnData = {
           request,
           params,
         };
+        console.log('This is return data', returnData);
         return {
           success: true,
           data: returnData,
@@ -948,7 +1034,6 @@ const positions = {
         data?: PositionSchema;
         error?: string;
       };
-      console.log('Token results', typedResult);
 
       if (!typedResult.success) {
         return (

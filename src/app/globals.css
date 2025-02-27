@@ -194,3 +194,122 @@
     scrollbar-width: none;
   }
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.orbit-1 {
+  width: 30vw;
+  height: 30vw;
+}
+
+.orbit-2 {
+  width: 50vw;
+  height: 50vw;
+}
+
+.orbit-3 {
+  width: 80vw;
+  height: 80vw;
+}
+
+/* Medium screens (Tablets) */
+@media (max-width: 1024px) {
+  .orbit-1 {
+    width: 25vw;
+    height: 25vw;
+  }
+
+  .orbit-2 {
+    width: 40vw;
+    height: 40vw;
+  }
+
+  .orbit-3 {
+    width: 70vw;
+    height: 70vw;
+  }
+}
+
+/* Small screens (Mobile) */
+@media (max-width: 640px) {
+  .orbit-1 {
+    width: 95vw;
+    height: 95vw;
+  }
+
+  .orbit-2 {
+    width: 35vw;
+    height: 35vw;
+  }
+
+  .orbit-3 {
+    width: 60vw;
+    height: 60vw;
+  }
+}
+.orbit-items {
+  position: absolute;
+}
+
+.orbit-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+}
+
+/* Default size for large screens */
+.orbit-1 .orbit-item {
+  transform: rotate(calc(var(--index) * 360deg)) translate(140px)
+    translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+}
+
+.orbit-2 .orbit-item {
+  transform: rotate(calc(var(--index) * 360deg)) translate(250px)
+    translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+}
+
+/* Medium screens */
+@media (max-width: 1024px) {
+  .orbit-1 .orbit-item {
+    transform: rotate(calc(var(--index) * 360deg)) translate(100px)
+      translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+  }
+
+  .orbit-2 .orbit-item {
+    transform: rotate(calc(var(--index) * 360deg)) translate(200px)
+      translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .orbit-1 .orbit-item {
+    transform: rotate(calc(var(--index) * 360deg)) translate(80px)
+      translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+  }
+
+  .orbit-2 .orbit-item {
+    transform: rotate(calc(var(--index) * 360deg)) translate(150px)
+      translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+  }
+}

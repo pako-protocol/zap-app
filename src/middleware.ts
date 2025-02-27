@@ -65,7 +65,7 @@ export async function middleware(req: NextRequest) {
     redirectUrl.searchParams.set('redirect_uri', pathname);
     return NextResponse.redirect(redirectUrl);
   }
-
+  // JUST REMOVED ! TO ALL CONDTIONS
   // Handle unauthenticated cases
   if (!definitelyAuthenticated && !maybeAuthenticated) {
     const loginUrl = new URL('/', req.url);

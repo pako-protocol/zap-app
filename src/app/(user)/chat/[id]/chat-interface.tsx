@@ -249,13 +249,11 @@ function MessageToolInvocations({
   toolInvocations: ToolInvocation[];
   addToolResult: (result: ToolResult) => void;
 }) {
-  console.log('Tool invocation resul');
   return (
     <div className="space-y-px">
       {toolInvocations.map(
         ({ toolCallId, toolName, displayName, result, state, args }) => {
           const toolResult = result as ToolActionResult;
-          console.log('Tool invocation resul', toolResult);
           if (toolName === 'askForConfirmation') {
             return (
               <div key={toolCallId} className="group">

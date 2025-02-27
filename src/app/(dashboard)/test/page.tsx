@@ -2,7 +2,10 @@
 
 import React from 'react';
 
-import { siloAbi } from '@/abis';
+import BigNumber from 'bignumber.js';
+import { Address, erc20Abi, formatUnits, parseUnits } from 'viem';
+
+import { ichiVaultAbi, siloAbi } from '@/abis';
 import MraketCard from '@/components/sonic/market-card';
 import PositionCard from '@/components/sonic/position-card';
 import TokenCard from '@/components/sonic/token-card';
@@ -22,6 +25,7 @@ import { repayWS } from '@/lib/sonic/repay';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
 import { withdrawSTS } from '@/lib/sonic/withdraw';
 import { getMarkets } from '@/server/actions/getMarkets';
+import { getSiloRewards } from '@/server/actions/getSiloRewards';
 import { getPoolTokens } from '@/server/actions/getTokens';
 import { getUserPositions } from '@/server/actions/getUserPositions';
 import { getVaults } from '@/server/actions/getVaults';
@@ -87,7 +91,7 @@ export default function page() {
   const handleFetchVaults = async () => {
     try {
       const yap = {
-        vaultName: 'Ws-WETH',
+        vaultName: 'S-ETH',
       };
       const tokens = await getVaults(yap);
       console.log('Tokens', tokens);
@@ -188,6 +192,202 @@ export default function page() {
     amount0: '1',
     amount1: '0',
   };
+
+  const testDeopistV5 = async () => {
+    try {
+      const amount0 = '2';
+      const amount1 = '0';
+      const allVaults = await getVaults();
+      // Chcek vault availability
+      const vault = '0x0f5AcFC6D67410232589265a71E80661d0352848';
+      const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323' as Address;
+      const vaultFound = allVaults.find((i) => i.vaultAddress === vault);
+      if (!vaultFound) {
+        console.log('Vault not found');
+        return { success: false, error: 'No vault found' };
+      }
+      console.log('Vault found', vaultFound);
+      const amount0InWei = parseUnits(amount0, 18);
+      const amount1InWei = parseUnits(amount1, 18);
+
+      if (amount0InWei === BigInt(0) && amount1InWei === BigInt(0)) {
+        console.log('Vault not found');
+        return { success: false, error: 'Amount must be greater than 0' };
+      }
+
+      const token0Allowed = vaultFound.isToken0Allowed;
+      const token1Allowed = vaultFound.isToken1Allowed;
+      if (!token0Allowed || !token1Allowed) {
+        let message = '';
+        if (!token0Allowed) message += `(${vaultFound.token0.symbol}) `;
+        if (!token1Allowed) message += `(${vaultFound.token1.symbol})`;
+        message = `Vault token ${message} not allowed`;
+        console.log(message);
+      }
+
+      // CHECK MAX AND MIN DEPOSIT
+
+      const token0MaxDeposit = (await testPublicClient.readContract({
+        address: vaultFound.vaultAddress as Address,
+        abi: ichiVaultAbi,
+        functionName: 'deposit0Max',
+      })) as bigint;
+
+      const token1MaxDeposit = (await testPublicClient.readContract({
+        address: vaultFound.vaultAddress as Address,
+        abi: ichiVaultAbi,
+        functionName: 'deposit1Max',
+      })) as bigint;
+
+      if (amount0InWei > token0MaxDeposit || amount1InWei > token1MaxDeposit) {
+        let message = 'Max deposit exceeded with ';
+        if (amount0InWei > token0MaxDeposit) {
+          const exceeded = BigInt(
+            new BigNumber(amount0InWei.toString())
+              .minus(token0MaxDeposit.toString())
+              .toString(),
+          );
+          message += `(${formatUnits(exceeded, 18)} ${vaultFound.token0.symbol}) `;
+        }
+        if (amount1InWei > token1MaxDeposit) {
+          const exceeded = BigInt(
+            new BigNumber(amount1InWei.toString())
+              .minus(token1MaxDeposit.toString())
+              .toString(),
+          );
+          message += `(${formatUnits(exceeded, 18)} ${vaultFound.token1.symbol}) `;
+        }
+        console.log(message);
+        return { success: false, error: message };
+      }
+      // Validate token balance
+      const token0Balance = await testPublicClient.readContract({
+        address: vaultFound.token0.tokenAddress as Address,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [account2],
+      });
+      console.log('Token 0 balance');
+      const token1Balance = await testPublicClient.readContract({
+        address: vaultFound.token1.tokenAddress as Address,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [account2],
+      });
+
+      if (token0Allowed && token0Balance < amount0InWei) {
+        console.log('Not enough balance');
+        return { success: false, error: 'Not enough balance' };
+      }
+
+      if (token1Allowed && token1Balance < amount1InWei) {
+        console.log('Not enough balance');
+        return { success: false, error: 'Not enough balance' };
+      }
+
+      // ✅ Check allowance before approving
+      if (token0Allowed) {
+        const currentAllowance = (await testPublicClient.readContract({
+          abi: erc20Abi,
+          address: vaultFound.token0.tokenAddress as Address,
+          functionName: 'allowance',
+          args: [account2, vault as Address],
+        })) as bigint;
+
+        if (currentAllowance < amount0InWei) {
+          console.log(
+            `Current allowance: ${formatUnits(currentAllowance, 18)}. Approving more...`,
+          );
+
+          const args = {
+            amount: amount0,
+            target: vaultFound.token0.tokenAddress as Address,
+            spender: vault as Address,
+          };
+          const approval = await approveTokens(args);
+          if (approval?.success === false) {
+            console.log('Token approval failed:', approval.error);
+            return { success: false, error: 'Token approval failed' };
+          }
+        } else {
+          console.log(
+            `Allowance is sufficient: ${formatUnits(currentAllowance, 18)}`,
+          );
+        }
+      }
+
+      // ✅ Check allowance before approving
+      console.log('Is token 1 allowed', token1Allowed);
+      if (token1Allowed) {
+        const currentAllowance = (await testPublicClient.readContract({
+          abi: erc20Abi,
+          address: vaultFound.token1.tokenAddress as Address,
+          functionName: 'allowance',
+          args: [account2, vault as Address],
+        })) as bigint;
+
+        if (currentAllowance < amount0InWei) {
+          console.log(
+            `Current allowance: ${formatUnits(currentAllowance, 18)}. Approving more...`,
+          );
+
+          const args = {
+            amount: amount1,
+            target: vaultFound.token1.tokenAddress as Address,
+            spender: vault as Address,
+          };
+          const approval = await approveTokens(args);
+          if (approval?.success === false) {
+            console.log('Token approval failed:', approval.error);
+            return { success: false, error: 'Token approval failed' };
+          }
+        } else {
+          console.log(
+            `Allowance is sufficient: ${formatUnits(currentAllowance, 18)}`,
+          );
+        }
+      }
+
+      // Deposit token
+
+      const { request } = await testPublicClient.simulateContract({
+        address: vault as Address,
+        abi: ichiVaultAbi,
+        functionName: 'deposit',
+        args: [amount0InWei, amount1InWei, account2],
+        account: account2,
+      });
+
+      const returnData = {
+        request,
+      };
+
+      console.log('request details', request);
+      console.log('status of tx is ', true);
+      return {
+        success: true,
+        data: returnData,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to add liq',
+      };
+    }
+  };
+
+  const handleGetSiloRewards = async () => {
+    try {
+      const params = {
+        siloId: '0x322e1d5384aa4ED66AeCa770B95686271de61dc3',
+      };
+      const siloRewards = await getSiloRewards(params);
+      console.log('silo rewardas', siloRewards);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -223,6 +423,8 @@ export default function page() {
       </form>
       <Button onClick={() => addLiquidity(props5)}>Test Add liquidity</Button>
       <Button onClick={() => handleFetchVaults()}>Test Fetch vaults</Button>
+      <Button onClick={() => testDeopistV5()}>Test Add liquidity V10</Button>
+      <Button onClick={() => handleGetSiloRewards()}>GET SILO REWARDS</Button>
 
       <Button onClick={() => checkAllowance()}>Check allowamce</Button>
       <h1 className="my-5 font-semibold">TSTING CARDS</h1>

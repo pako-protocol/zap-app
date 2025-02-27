@@ -28,3 +28,35 @@ export const STS_S_MARKET_ID = '3';
 export const S_BASE = '0xE223C8e92AA91e966CA31d5C6590fF7167E25801';
 export const USDC_BRIDGE = '0x4E216C15697C1392fE59e1014B009505E05810Df';
 export const S_USDC_MARKET_ID = '8';
+
+export const skillsOrbit1 = [
+  { name: 'JavaScript', image: '/integrations/magic_eden.svg' },
+
+  { name: 'React', image: '/integrations/pump_fun.svg' },
+
+  { name: 'TypeScript', image: '/integrations/ring-protocol.svg' },
+];
+
+export const skillsOrbit2 = [
+  { name: 'Debridge', image: '/integrations/de-bridge.svg' },
+
+  { name: 'Prisma', image: '/integrations/de-five.png' },
+
+  { name: 'Framer Motion', image: '/integrations/defillama.svg' },
+
+  { name: 'TailwindCSS', image: '/integrations/defined_fi.svg' },
+];
+
+export const skillsOrbit3 = [
+  { name: 'Next.js', image: '/integrations/dexscreener.svg' },
+
+  { name: 'ShadCN UI', image: '/integrations/dialect.svg' },
+
+  { name: 'Google Docs', image: '/integrations/jupiter.svg' },
+];
+
+export const orbitDurations = {
+  orbit1: 30,
+  orbit2: 45,
+  orbit3: 60,
+};
