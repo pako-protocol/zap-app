@@ -264,6 +264,47 @@ export async function dbGetConversations({ userId }: { userId: string }) {
 }
 
 /**
+ * Retrieves all whitelisted tokens
+ */
+export async function dbGetHypersonicTokens() {
+  try {
+    return await prisma.hyperSonicTokens.findMany({
+      include: {
+        token: true,
+      },
+    });
+  } catch (error) {
+    console.error('[DB Error] Failed to get user conversations:', {
+      error,
+    });
+    return [];
+  }
+}
+
+/**
+ * Retrieves all conversations for a specific user
+ * @param {Object} params - The parameters object
+ * @param {string} params.userId - The ID of the user
+ * @returns {Promise<Conversation[]>} Array of conversations
+ */
+/*export async function dbGetHypersonicTokenBySymbol({
+  symbol,
+}: {
+  symbol: string;
+}) {
+  try {
+    return await prisma.hyperSonicTokens.findMany({
+      where: { symbol },
+    });
+  } catch (error) {
+    console.error('[DB Error] Failed to get user conversations:', {
+      error,
+    });
+    return [];
+  }
+}*/
+
+/**
  * Retrieves all actions that match the specified filters
  * @param {Object} params - The parameters object
  * @param {boolean} params.triggered - Boolean to filter triggered actions

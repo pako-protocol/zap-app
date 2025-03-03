@@ -203,7 +203,7 @@ const markets = {
 
 const allMarkets = {
   getAvailableMarkets: {
-    displayName: '🌐 Get avaialble markets',
+    displayName: '🌐 Get silo finance markets',
     description:
       'Fetch all available markets on SiloFinance, including reward details for each Silo',
     parameters: z.object({

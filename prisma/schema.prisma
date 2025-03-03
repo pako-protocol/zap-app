@@ -249,13 +249,37 @@ model Silo {
   liquidationFee       Decimal? @default(0.0)
   riskLevel           RiskLevel @default(LOW)
   availableToBorrow    Decimal? @default(0.0)
-
+  rewardMultipliers RewardMultiplier[]
+  siloRewards        SiloRewardConfig?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
   @@index([tokenId])
 }
 
+ model SiloRewardConfig {
+  id                     String  @id @default(uuid())
+  siloId                 String  @unique
+  xpPerDollarDeposit     Float   @default(1.0) // XP per $1 deposit
+  xpPerDollarBorrow      Float   @default(0.5) // XP per $1 borrowed
+  sTokenRewardAPR  Float?            @default(0.0)
+  siloRewardAPR   Float?       @default(0.0)
+  sonicXpMultiplier       Float?  // e.g., 10x Sonic Points
+  sonicXpMultiplierAction  MultiplierAction? @default(DEPOSIT)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  silo                   Silo   @relation(fields: [siloId], references: [id])
+}
+
+model RewardMultiplier {
+  id         String  @id @default(uuid())
+  siloId     String? // Still keep a link to silo if needed
+  action     String  // "DEPOSIT" or "BORROW"
+  tokenSymbol String  
+  multiplier Float   // e.g., 2.0, 3.0
+  silo       Silo?   @relation(fields: [siloId], references: [id])
+  @@index([siloId])
+}
 model Platform {
   id         String  @id @default(uuid())
   name       String
@@ -264,6 +288,14 @@ model Platform {
   vaults     Vault[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model HyperSonicTokens  {
+    id         String  @id @default(uuid())
+    tokenId   String  @unique
+    token      Token   @relation(fields: [tokenId], references: [id])
+
+    @@map("hypersonic_tokens")
 }
 
 model Token {
@@ -275,6 +307,7 @@ model Token {
   vaultToken0 Vault[] @relation("VaultToken0")
   vaultToken1 Vault[] @relation("VaultToken1")
   silos        Silo[]
+  hyperSonic   HyperSonicTokens? @relation
 }
 
 enum RiskLevel {
@@ -312,4 +345,9 @@ enum VaultType {
   CONCENTRATED
   STABLE
   VOLATILE
+}
+enum MultiplierAction {
+  DEPOSIT
+  BORROW
+  HOLD
 }

@@ -1,4 +1,6 @@
+import { HYPERSONIC_ROUTER_ABI } from './hypersonic-dex-ruter-abi';
 import LENS_ABI from './lens.json';
+import { MIN_ERC20_ABI } from './min-erc2-abi';
 import { routerAbi } from './routerAbi';
 import { siloAbi } from './siloAbi';
 import { stsAbi } from './stsAbi';
@@ -22,4 +24,6 @@ export {
   rewardsDistributorAbi,
   voterV3Abi,
   votingEscrowAbi,
+  HYPERSONIC_ROUTER_ABI,
+  MIN_ERC20_ABI,
 };

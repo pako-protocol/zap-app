@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, erc20Abi, formatUnits, parseUnits } from 'viem';
 
@@ -21,9 +22,12 @@ import {
 } from '@/lib/sonic/evm-wallet-generator';
 import { fetchUserPosition } from '@/lib/sonic/fetchUserPositions';
 import { getDepositedBalanceWs } from '@/lib/sonic/ftechDepositedAmount';
+import { quote } from '@/lib/sonic/getQuote';
 import { repayWS } from '@/lib/sonic/repay';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
+import { swap } from '@/lib/sonic/swap';
 import { withdrawSTS } from '@/lib/sonic/withdraw';
+import { getHyperSonicTokens } from '@/server/actions/getHypersonicTokens';
 import { getMarkets } from '@/server/actions/getMarkets';
 import { getSiloRewards } from '@/server/actions/getSiloRewards';
 import { getPoolTokens } from '@/server/actions/getTokens';
@@ -388,6 +392,51 @@ export default function page() {
     }
   };
 
+  const handleGetHypersonicTokens = async () => {
+    try {
+      const tokens = await getHyperSonicTokens();
+      console.log('whitelisted', tokens);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleOneToken = async () => {
+    try {
+      const tokens = await getHyperSonicTokens();
+      const tokenFoundA = tokens.find((i) => i.symbol === 'S');
+      console.log('whitelisted', tokens);
+      console.log('cone token is', tokenFoundA);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getSwapQuote = async () => {
+    try {
+      const pros = {
+        inToken: 'S',
+        outToken: 'wS',
+        inAmount: '3',
+      };
+      const res = await quote(pros);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSwap = async () => {
+    try {
+      const pros = {
+        inToken: 'wS',
+        outToken: 'S',
+        inAmount: '3',
+      };
+      const res = await swap(pros);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -425,8 +474,16 @@ export default function page() {
       <Button onClick={() => handleFetchVaults()}>Test Fetch vaults</Button>
       <Button onClick={() => testDeopistV5()}>Test Add liquidity V10</Button>
       <Button onClick={() => handleGetSiloRewards()}>GET SILO REWARDS</Button>
+      <Button onClick={() => handleOneToken()}>hunt one tokens</Button>
 
       <Button onClick={() => checkAllowance()}>Check allowamce</Button>
+      <Button onClick={() => handleGetHypersonicTokens()}>
+        Get Tokens of hypersonic
+      </Button>
+
+      <Button onClick={() => getSwapQuote()}>Get quote</Button>
+      <Button onClick={() => handleSwap()}>Builsd swap</Button>
+
       <h1 className="my-5 font-semibold">TSTING CARDS</h1>
 
       <PositionCard position={fakePosition} />

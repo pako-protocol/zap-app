@@ -39,7 +39,7 @@ const Orbit = ({
 
   return (
     <motion.div
-      className={`absolute rounded-full border border-dashed border-gray-300 ${classname} `}
+      className={`absolute rounded-full border border-dashed ${classname} z-10  `}
       style={
         {
           //width: `${width}px`,

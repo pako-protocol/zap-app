@@ -263,19 +263,22 @@
   top: 50%;
   left: 50%;
   transform-origin: 0 0;
+  transform: rotate(calc(var(--index) * 360deg)) translate(var(--radius))
+    translate(-50%, -50%);
 }
 
-/* Default size for large screens */
+/* Default sizes */
 .orbit-1 .orbit-item {
-  transform: rotate(calc(var(--index) * 360deg)) translate(140px)
-    translate(-50%, -50%);
+  --radius: 270px;
   width: 50px;
   height: 50px;
+  background-color: blue;
+  padding: 3px;
+  border-radius: 15px;
 }
 
 .orbit-2 .orbit-item {
-  transform: rotate(calc(var(--index) * 360deg)) translate(250px)
-    translate(-50%, -50%);
+  --radius: 450px;
   width: 70px;
   height: 70px;
 }
@@ -283,15 +286,13 @@
 /* Medium screens */
 @media (max-width: 1024px) {
   .orbit-1 .orbit-item {
-    transform: rotate(calc(var(--index) * 360deg)) translate(100px)
-      translate(-50%, -50%);
+    --radius: 100px;
     width: 40px;
     height: 40px;
   }
 
   .orbit-2 .orbit-item {
-    transform: rotate(calc(var(--index) * 360deg)) translate(200px)
-      translate(-50%, -50%);
+    --radius: 200px;
     width: 60px;
     height: 60px;
   }
@@ -300,15 +301,13 @@
 /* Small screens */
 @media (max-width: 640px) {
   .orbit-1 .orbit-item {
-    transform: rotate(calc(var(--index) * 360deg)) translate(80px)
-      translate(-50%, -50%);
+    --radius: 80px;
     width: 30px;
     height: 30px;
   }
 
   .orbit-2 .orbit-item {
-    transform: rotate(calc(var(--index) * 360deg)) translate(150px)
-      translate(-50%, -50%);
+    --radius: 150px;
     width: 50px;
     height: 50px;
   }

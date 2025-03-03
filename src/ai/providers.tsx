@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { actionTools } from './generic/action';
 import { jinaTools } from './generic/jina';
+import { hyperSonicTools } from './generic/sonic/heyperSonic';
 import { poolTools } from './generic/sonic/pools';
 import { siloFinanceTools } from './generic/sonic/siloFinance';
 import { swapXTools } from './generic/sonic/swapX';
@@ -183,6 +184,7 @@ export const defaultTools: Record<string, ToolConfig> = {
   //...poolTools,
   ...siloFinanceTools,
   ...swapXTools,
+  ...hyperSonicTools,
 };
 
 export const coreTools: Record<string, ToolConfig> = {
@@ -196,7 +198,7 @@ export const toolsets: Record<
   { tools: string[]; description: string }
 > = {
   coreTools: {
-    tools: ['actionTools', 'utilTools', 'siloFinanceTools'],
+    tools: ['actionTools', 'utilTools'],
     description:
       'Core utility tools for general operations, including actions, searching token info, utility functions.',
   },
@@ -206,12 +208,12 @@ export const toolsets: Record<
       'Web scraping and content extraction tools for reading web pages and extracting content.',
   },
   defiTools: {
-    tools: ['siloFinanceTools', 'swapXTools'],
+    tools: ['siloFinanceTools', 'swapXTools', 'hyperSonicTools'],
     description:
       'Tools for interacting with DeFi protocols on  Sonic blockchain, including swaps, market data, token information lending protocols and details.',
   },
   traderTools: {
-    tools: ['siloFinanceTools'],
+    tools: ['siloFinanceTools', 'hyperSonicTools'],
     description:
       'Tools for analyzing and tracking traders and trades on Sonic lending DEXes.',
   },
