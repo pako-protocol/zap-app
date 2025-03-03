@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { actionTools } from './generic/action';
 import { jinaTools } from './generic/jina';
 import { hyperSonicTools } from './generic/sonic/heyperSonic';
+import { rewardTools } from './generic/sonic/points';
 import { poolTools } from './generic/sonic/pools';
 import { siloFinanceTools } from './generic/sonic/siloFinance';
 import { swapXTools } from './generic/sonic/swapX';
@@ -185,6 +186,7 @@ export const defaultTools: Record<string, ToolConfig> = {
   ...siloFinanceTools,
   ...swapXTools,
   ...hyperSonicTools,
+  ...rewardTools,
 };
 
 export const coreTools: Record<string, ToolConfig> = {
@@ -218,7 +220,7 @@ export const toolsets: Record<
       'Tools for analyzing and tracking traders and trades on Sonic lending DEXes.',
   },
   financeTools: {
-    tools: [/*'definedTools' */ 'siloFinanceTools'],
+    tools: ['rewardTools', 'siloFinanceTools'],
     description:
       'Tools for retrieving and applying logic to static financial data, including analyzing trending tokens.',
   },

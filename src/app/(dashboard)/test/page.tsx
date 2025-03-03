@@ -25,11 +25,13 @@ import { getDepositedBalanceWs } from '@/lib/sonic/ftechDepositedAmount';
 import { quote } from '@/lib/sonic/getQuote';
 import { repayWS } from '@/lib/sonic/repay';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
+import { fetchUserPointsStats } from '@/lib/sonic/sonicPoints';
 import { swap } from '@/lib/sonic/swap';
 import { withdrawSTS } from '@/lib/sonic/withdraw';
 import { getHyperSonicTokens } from '@/server/actions/getHypersonicTokens';
 import { getMarkets } from '@/server/actions/getMarkets';
 import { getSiloRewards } from '@/server/actions/getSiloRewards';
+import { getUserPoints } from '@/server/actions/getSonicPoints';
 import { getPoolTokens } from '@/server/actions/getTokens';
 import { getUserPositions } from '@/server/actions/getUserPositions';
 import { getVaults } from '@/server/actions/getVaults';
@@ -437,6 +439,18 @@ export default function page() {
       console.log(error);
     }
   };
+
+  const handleGetPoinst = async () => {
+    const parook = {
+      walletAddress: '0x4c9972f2AA16B643440488a788e933c139Ff0323',
+    };
+    try {
+      const points = await getUserPoints(parook);
+      console.log('pOINTS IS HERE', points);
+    } catch (error) {
+      console.log('Point errors', error);
+    }
+  };
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -483,6 +497,7 @@ export default function page() {
 
       <Button onClick={() => getSwapQuote()}>Get quote</Button>
       <Button onClick={() => handleSwap()}>Builsd swap</Button>
+      <Button onClick={() => handleGetPoinst()}>Get Xp Points</Button>
 
       <h1 className="my-5 font-semibold">TSTING CARDS</h1>
 
