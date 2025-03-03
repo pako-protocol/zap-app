@@ -1,7 +1,3 @@
-////
-//1 => get quote info
-// 2 => swap token
-// info getter
 import axios from 'axios';
 import { Address, erc20Abi, formatUnits, parseUnits } from 'viem';
 import { z } from 'zod';
@@ -101,14 +97,18 @@ const quote = {
         // Get whitelisted tokens
         const allTokens: Token[] = await getHyperSonicTokens();
         // Validate input token
-        const tokenFoundA = allTokens.find((i) => i.symbol === params.inToken);
+        const tokenFoundA = allTokens.find(
+          (i) => i.token.symbol === params.inToken,
+        );
         if (!tokenFoundA) {
           console.log('Token from not found', true);
         }
 
         // Validate output token
 
-        const tokenFoundB = allTokens.find((i) => i.symbol === params.outToken);
+        const tokenFoundB = allTokens.find(
+          (i) => i.token.symbol === params.outToken,
+        );
         if (!tokenFoundB) {
           console.log('Token to not found', true);
         }
@@ -121,8 +121,8 @@ const quote = {
           'https://api.hypersonic.exchange/v1/quote',
           {
             chainId: chainId, //inTokenDetails.data.chainId,
-            inToken: tokenFoundA?.address, //inTokenDetails.data.tokenAddress,
-            outToken: tokenFoundB?.address,
+            inToken: tokenFoundA?.token.tokenAddress, //inTokenDetails.data.tokenAddress,
+            outToken: tokenFoundB?.token.tokenAddress,
             inAmount: amountInWei.toString(),
             slippage: 2.5, // Using 2.5% slippage - recommended for good surfing Sonic speed 💥
           },
