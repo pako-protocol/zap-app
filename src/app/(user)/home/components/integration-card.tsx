@@ -10,7 +10,7 @@ interface IntegrationCardProps {
   onClick?: () => void;
 }
 
-interface IntegrationCardStyles extends React.CSSProperties {
+export interface IntegrationCardStyles extends React.CSSProperties {
   '--integration-primary': string;
   '--integration-secondary': string;
 }

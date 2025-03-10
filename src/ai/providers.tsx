@@ -6,7 +6,11 @@ import { z } from 'zod';
 
 import { actionTools } from './generic/action';
 import { jinaTools } from './generic/jina';
+import { hyperSonicTools } from './generic/sonic/heyperSonic';
+import { rewardTools } from './generic/sonic/points';
 import { poolTools } from './generic/sonic/pools';
+import { siloFinanceTools } from './generic/sonic/siloFinance';
+import { swapXTools } from './generic/sonic/swapX';
 import { telegramTools } from './generic/telegram';
 import { utilTools } from './generic/util';
 import { birdeyeTools } from './solana/birdeye';
@@ -52,8 +56,8 @@ export const orchestratorModel = openai('gpt-4o-mini');
 const openAiModel = openai(process.env.OPENAI_MODEL_NAME || 'gpt-4o');
 
 export const defaultSystemPrompt = `
-Your name is Neur (Agent).
-You are a specialized AI assistant for Solana blockchain and DeFi operations, designed to provide secure, accurate, and user-friendly assistance.
+Your name is Zap (Agent).
+You are a specialized AI assistant for Sonic blockchain and DeFi operations, designed to provide secure, accurate, and user-friendly assistance.
 
 Critical Rules:
 - If the previous tool result contains the key-value pair 'noFollowUp: true':
@@ -61,7 +65,13 @@ Critical Rules:
 - If the previous tool result contains the key-value pair 'suppressFollowUp: true':
   Respond only with something like:
      - "Take a look at the results above"
-- Always use the \`searchToken\` tool to get the correct token mint first and ask for user confirmation.
+- Always use the \`searchToken\` tool to get the correct token data first and ask for user confirmation.
+
+ - Platform Mention Check:
+    1. Before processing deposit, withdraw, or check positions, always check if the platform is specified.
+    2. If the platform is missing (i.e., no @PlatformName is provided), stop and respond with:
+      - Please specify the platform (e.g., @SiloFinance, @Aave).
+
 
 Confirmation Handling:
 - Before executing any tool where the parameter "requiresConfirmation" is true or the description contains the term "requiresConfirmation":
@@ -75,10 +85,13 @@ Confirmation Handling:
   - If the user rejects:
     1. Acknowledge the rejection (e.g., "Understood, the action will not be executed").
     2. Do not attempt the tool execution.
+
 - Behavioral Guidelines:
   1. NEVER chain the confirmation request and tool execution within the same response.
   2. NEVER execute the tool without explicit confirmation from the user.
   3. Treat user rejection as final and do not prompt again for the same action unless explicitly instructed.
+
+  
 
 Scheduled Actions:
 - Scheduled actions are automated tasks that are executed at specific intervals.
@@ -94,10 +107,28 @@ Response Formatting:
 - Use emojis sparingly and only when appropriate for the context
 - Use an abbreviated format for transaction signatures
 
+Standardized Terminology:
+  - Market → A trading/lending environment (e.g., stS-S).
+  - Silo / Pool → Same concept across platforms.
+  - Vault → A contract for staking or providing liquidity
+
+Market Operations (Deposit, Repay, Withdraw):
+ - Markets handle deposits, borrowing, repayments, and position management
+ - Always use the \`getMarket\` tool to retrieve market data.
+ - Each market consists of two contract addresses (Bridge and Base).
+ - Identify the asset type (Base Asset or Bridge Asset).
+ - Select the correct contract address based on asset type.
+
+ Vault & Liquidity Management (Deposit liquidity, Stake, Unstake, Withdraw)
+  - Always use the \`searchVault\` tool to retrieve vault data.
+  - If isToken0Allowed or isToken1Allowed is false, that token cannot be deposited.
+  - For non-allowed tokens, set the deposit amount to 0
+
 Common knowledge:
-- { token: NEUR, description: The native token of Neur, twitter: @neur_sh, website: https://neur.sh/, address: 3N2ETvNpPNAxhcaXgkhKoY1yDnQfs41Wnxsx5qNJpump }
+- { token: S, description: The native token of Sonic blockchain }
 - { user: toly, description: Co-Founder of Solana Labs, twitter: @aeyakovenko, wallet: toly.sol }\
 
+ 
 Realtime knowledge:
 - { approximateCurrentTime: ${new Date().toISOString()}}
 `;
@@ -140,18 +171,22 @@ export function DefaultToolResultRenderer({ result }: { result: unknown }) {
 
 export const defaultTools: Record<string, ToolConfig> = {
   ...actionTools,
-  ...solanaTools,
-  ...definedTools,
-  ...pumpfunTools,
-  ...jupiterTools,
-  ...dexscreenerTools,
-  ...magicEdenTools,
+  // ...solanaTools,
+  // ...definedTools,
+  //...pumpfunTools,
+  //...jupiterTools,
+  //...dexscreenerTools,
+  //...magicEdenTools,
   ...jinaTools,
   ...utilTools,
-  ...chartTools,
+  //...chartTools,
   ...telegramTools,
-  ...birdeyeTools,
-  ...poolTools,
+  //...birdeyeTools,
+  //...poolTools,
+  ...siloFinanceTools,
+  ...swapXTools,
+  ...hyperSonicTools,
+  ...rewardTools,
 };
 
 export const coreTools: Record<string, ToolConfig> = {
@@ -165,7 +200,7 @@ export const toolsets: Record<
   { tools: string[]; description: string }
 > = {
   coreTools: {
-    tools: ['actionTools', 'utilTools', 'jupiterTools'],
+    tools: ['actionTools', 'utilTools'],
     description:
       'Core utility tools for general operations, including actions, searching token info, utility functions.',
   },
@@ -175,17 +210,17 @@ export const toolsets: Record<
       'Web scraping and content extraction tools for reading web pages and extracting content.',
   },
   defiTools: {
-    tools: ['solanaTools', 'dexscreenerTools', 'poolTools'],
+    tools: ['siloFinanceTools', 'swapXTools', 'hyperSonicTools'],
     description:
-      'Tools for interacting with DeFi protocols on Solana and sonic, including swaps, market data, token information lending protocols and details.',
+      'Tools for interacting with DeFi protocols on  Sonic blockchain, including swaps, market data, token information lending protocols and details.',
   },
   traderTools: {
-    tools: ['birdeyeTools'],
+    tools: ['siloFinanceTools', 'hyperSonicTools'],
     description:
-      'Tools for analyzing and tracking traders and trades on Solana DEXes.',
+      'Tools for analyzing and tracking traders and trades on Sonic lending DEXes.',
   },
   financeTools: {
-    tools: ['definedTools'],
+    tools: ['rewardTools', 'siloFinanceTools'],
     description:
       'Tools for retrieving and applying logic to static financial data, including analyzing trending tokens.',
   },
@@ -211,7 +246,7 @@ export const toolsets: Record<
 };
 
 export const orchestrationPrompt = `
-You are Neur, an AI assistant specialized in Solana blockchain and DeFi operations.
+You are Neur, an AI assistant specialized in Sonic blockchain and DeFi operations.
 
 Your Task:
 Analyze the user's message and return the appropriate tools as a **JSON array of strings**.  

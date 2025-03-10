@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 import { DynamicImage } from './dynamic-image';
+import SvgLogo from './svgLogo';
 
 export default function Logo({
   width = 100,
@@ -15,8 +16,8 @@ export default function Logo({
 }) {
   return (
     <DynamicImage
-      lightSrc="/letter.svg"
-      darkSrc="/letter_w.svg"
+      lightSrc="/zap.png"
+      darkSrc="/zap.png"
       alt="Logo"
       width={width}
       height={height}
@@ -34,7 +35,7 @@ export function Brand({ className }: BrandProps) {
     <Link href="/" className={className}>
       <div className="flex items-center gap-2">
         <Logo width={32} />
-        <span className="text-x select-none font-bold">Neur</span>
+        <span className="text-x select-none font-bold">Zap</span>
       </div>
     </Link>
   );

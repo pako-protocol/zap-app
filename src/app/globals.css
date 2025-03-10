@@ -194,3 +194,130 @@
     scrollbar-width: none;
   }
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.orbit-1 {
+  width: 300px;
+  height: 300px;
+}
+
+.orbit-2 {
+  width: 600px;
+  height: 600px;
+}
+
+.orbit-3 {
+  width: 1000px;
+  height: 1000px;
+}
+
+/* Medium screens (Tablets) */
+@media (max-width: 1024px) {
+  .orbit-1 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .orbit-2 {
+    width: 700px;
+    height: 700px;
+  }
+
+  .orbit-3 {
+    width: 1000px;
+    height: 1000px;
+  }
+}
+
+/* Small screens (Mobile) */
+@media (max-width: 640px) {
+  .orbit-1 {
+    width: 95vw;
+    height: 95vw;
+  }
+
+  .orbit-2 {
+    width: 35vw;
+    height: 35vw;
+  }
+
+  .orbit-3 {
+    width: 60vw;
+    height: 60vw;
+  }
+}
+.orbit-items {
+  position: absolute;
+}
+
+.orbit-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+  transform: rotate(calc(var(--index) * 360deg)) translate(var(--radius))
+    translate(-50%, -50%);
+}
+
+/* Default sizes */
+.orbit-1 .orbit-item {
+  --radius: 150px;
+  width: 30px;
+  height: 30px;
+  background-color: #f8fafc;
+  padding: 3px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.orbit-2 .orbit-item {
+  --radius: 310px;
+  width: 80px;
+  height: 80px;
+  background-color: #fff7ed;
+  padding: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10;
+}
+
+/* Medium screens */
+@media (max-width: 1024px) {
+  .orbit-1 .orbit-item {
+    --radius: 100px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .orbit-2 .orbit-item {
+    --radius: 330px;
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .orbit-1 .orbit-item {
+    --radius: 80px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .orbit-2 .orbit-item {
+    --radius: 190px;
+    width: 50px;
+    height: 50px;
+  }
+}

@@ -1,11 +1,11 @@
 import { Action, Prisma, Message as PrismaMessage } from '@prisma/client';
 import { JsonValue } from '@prisma/client/runtime/library';
+import { tool } from 'ai';
 import _ from 'lodash';
 
 import prisma from '@/lib/prisma';
 import { convertToUIMessages } from '@/lib/utils';
 import { NewAction } from '@/types/db';
-import { tool } from 'ai';
 
 /**
  * Retrieves a conversation by its ID
@@ -176,8 +176,13 @@ export async function dbGetConversationMessages({
     const uiMessages = convertToUIMessages(messages);
 
     // If our final message is not a user message, add a fake empty user message
-    if (limit && uiMessages.length && uiMessages[uiMessages.length - 1].role !== 'user') {
-      const lastMessageAt = uiMessages[uiMessages.length - 1].createdAt || new Date(1);
+    if (
+      limit &&
+      uiMessages.length &&
+      uiMessages[uiMessages.length - 1].role !== 'user'
+    ) {
+      const lastMessageAt =
+        uiMessages[uiMessages.length - 1].createdAt || new Date(1);
       uiMessages.push({
         id: 'fake',
         createdAt: new Date(lastMessageAt.getTime() - 1),
@@ -259,6 +264,75 @@ export async function dbGetConversations({ userId }: { userId: string }) {
 }
 
 /**
+ * Retrieves all whitelisted tokens
+ */
+export async function dbGetHypersonicTokens() {
+  try {
+    return await prisma.hyperSonicTokens.findMany({
+      include: {
+        token: true,
+      },
+    });
+  } catch (error) {
+    console.error('[DB Error] Failed to get user conversations:', {
+      error,
+    });
+    return [];
+  }
+}
+
+/**
+ * Retrieves all Examples
+ */
+export async function dbGetExamples() {
+  try {
+    return await prisma.example.findMany();
+  } catch (error) {
+    console.error('[DB Error] Failed to get user conversations:', {
+      error,
+    });
+    return [];
+  }
+}
+
+/**
+ * Retrieves all Agents
+ */
+export async function dbGetAgents() {
+  try {
+    return await prisma.agent.findMany();
+  } catch (error) {
+    console.error('[DB Error] Failed to get Agents:', {
+      error,
+    });
+    return [];
+  }
+}
+
+/**
+ * Retrieves all conversations for a specific user
+ * @param {Object} params - The parameters object
+ * @param {string} params.userId - The ID of the user
+ * @returns {Promise<Conversation[]>} Array of conversations
+ */
+/*export async function dbGetHypersonicTokenBySymbol({
+  symbol,
+}: {
+  symbol: string;
+}) {
+  try {
+    return await prisma.hyperSonicTokens.findMany({
+      where: { symbol },
+    });
+  } catch (error) {
+    console.error('[DB Error] Failed to get user conversations:', {
+      error,
+    });
+    return [];
+  }
+}*/
+
+/**
  * Retrieves all actions that match the specified filters
  * @param {Object} params - The parameters object
  * @param {boolean} params.triggered - Boolean to filter triggered actions
@@ -282,10 +356,7 @@ export async function dbGetActions({
         triggered,
         paused,
         completed,
-        OR: [
-          { startTime: { lte: new Date() } },
-          { startTime: null }
-        ]
+        OR: [{ startTime: { lte: new Date() } }, { startTime: null }],
       },
       orderBy: { createdAt: 'desc' },
       include: { user: { include: { wallets: true } } },
@@ -601,6 +672,26 @@ export async function dbUpdateSavedPromptLastUsedAt({ id }: { id: string }) {
       error,
     });
     return null;
+  }
+}
+
+// EARLY ACCESS TOKEN CHECKER
+
+export async function dbCheckAccessCodeStatus(code: string) {
+  try {
+    // Fetch the access code from the database
+    const accessCode = await prisma.accessCode.findUnique({
+      where: { code },
+    });
+
+    // Check if the code exists, is valid, and has not expired
+    const isValid =
+      accessCode &&
+      accessCode.isValid &&
+      new Date(accessCode.expireAt) > new Date();
+    return isValid;
+  } catch (error) {
+    return error;
   }
 }
 

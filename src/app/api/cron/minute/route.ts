@@ -6,11 +6,11 @@ export const dynamic = 'force-dynamic'; // static by default, unless reading the
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
-  /* if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized', {
       status: 401,
     });
-  }*/
+  }
 
   // Minute cron job
   // Get all Actions that are not completed or paused

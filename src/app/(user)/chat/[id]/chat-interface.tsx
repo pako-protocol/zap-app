@@ -249,13 +249,11 @@ function MessageToolInvocations({
   toolInvocations: ToolInvocation[];
   addToolResult: (result: ToolResult) => void;
 }) {
-  console.log('Tool invocation resul');
   return (
     <div className="space-y-px">
       {toolInvocations.map(
         ({ toolCallId, toolName, displayName, result, state, args }) => {
           const toolResult = result as ToolActionResult;
-          console.log('Tool invocation resul', toolResult);
           if (toolName === 'askForConfirmation') {
             return (
               <div key={toolCallId} className="group">
@@ -281,7 +279,7 @@ function MessageToolInvocations({
             'error' in result;
           const config = getToolConfig(toolName)!;
           // TODO: fix intermitent issue where config is undefined
-          const finalDisplayName = displayName || config.displayName;
+          const finalDisplayName = displayName || config?.displayName;
 
           const header = (
             <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -387,7 +385,7 @@ function ChatMessage({
       )}
     >
       {showAvatar ? (
-        <Avatar className="mt-0.5 h-8 w-8 shrink-0 select-none">
+        <Avatar className="mt-0.5 h-8 w-8 shrink-0 select-none object-contain">
           <Logo />
           <AvatarFallback>AI</AvatarFallback>
         </Avatar>

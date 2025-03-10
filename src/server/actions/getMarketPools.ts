@@ -2,6 +2,8 @@ import { cache } from 'react';
 
 import { z } from 'zod';
 
+import { BACK_END } from '@/lib/constants';
+
 export interface MarketPools {
   _id: string;
   id: number;
@@ -92,7 +94,7 @@ const poolMarketsSchema = z.object({
 export const getPools = async (): Promise<MarketPools[]> => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/v1/market/get-markets`,
+      `${BACK_END}market/get-markets`,
       /* {
         next: {
           revalidate: 300, // Cache for 5 minutes

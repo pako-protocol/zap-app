@@ -121,6 +121,7 @@ export const telegramTools = {
         }
         return { success: true, data: 'Telegram setup verified' };
       } catch (err) {
+        console.log('Telegram setup err', err);
         return {
           success: false,
           error: err instanceof Error ? err.message : 'Verification failed',

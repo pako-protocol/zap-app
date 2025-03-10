@@ -3,6 +3,17 @@
 import { PublicKey } from '@solana/web3.js';
 import { type CoreMessage, type CoreUserMessage, generateText } from 'ai';
 import { BaseWallet, SolanaAgentKit, WalletAdapter } from 'solana-agent-kit';
+import {
+  Account,
+  Address,
+  Client,
+  WalletClient,
+  createClient,
+  createWalletClient,
+  http,
+} from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { sonic } from 'viem/chains';
 import { z } from 'zod';
 
 import { defaultModel } from '@/ai/providers';
@@ -11,6 +22,7 @@ import prisma from '@/lib/prisma';
 import { ActionEmptyResponse, actionClient } from '@/lib/safe-action';
 import { PrivyEmbeddedWallet } from '@/lib/solana/PrivyEmbeddedWallet';
 import { decryptPrivateKey } from '@/lib/solana/wallet-generator';
+import { decryptPrivateKeyEvm } from '@/lib/sonic/evm-wallet-generator';
 import { SOL_MINT } from '@/types/helius/portfolio';
 import { publicKeySchema } from '@/types/util';
 
@@ -84,12 +96,18 @@ export const retrieveAgentKit = actionClient
       return { success: false, error: 'UNAUTHORIZED', data: null };
     }
 
-    const result = await getAgentKit({ userId, walletId: parsedInput?.walletId });
+    const result = await getAgentKit({
+      userId,
+      walletId: parsedInput?.walletId,
+    });
 
     return result;
   });
 
-export const getAgentKit = async ({ userId, walletId }: {
+export const getAgentKit = async ({
+  userId,
+  walletId,
+}: {
   userId: string;
   walletId?: string;
 }) => {
@@ -131,6 +149,41 @@ export const getAgentKit = async ({ userId, walletId }: {
   return { success: true, data: { agent } };
 };
 
+export const getViemProvider = async () => {
+  const authResult = await verifyUser();
+  const userId = authResult?.data?.data?.id;
+
+  const whereClause = { ownerId: userId, active: true };
+
+  const wallet = await prisma.wallet.findFirst({
+    where: whereClause,
+  });
+
+  if (!userId) {
+    return { success: false, error: 'UNAUTHORIZED', data: null };
+  }
+  if (!wallet) {
+    return { success: false, error: 'WALLET_NOT_FOUND' };
+  }
+
+  const decryptedPk = (await decryptPrivateKeyEvm(
+    wallet.encryptedPrivateKey!,
+  )) as Address;
+  const account = privateKeyToAccount(decryptedPk); //
+
+  const walletClient = createWalletClient({
+    account,
+    chain: sonic,
+    transport: http(),
+  });
+
+  return { walletClient, account, decryptedPk };
+};
+
+/*export const publicClient = createClient({
+  chain: sonic,
+  transport: http(),
+});*/
 export const transferToken = actionClient
   .schema(
     z.object({

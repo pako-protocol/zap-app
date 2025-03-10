@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import PoolCard from '@/components/sonic/pools/pool-card';
 import { MarketPools, getPools } from '@/server/actions/getMarketPools';
+import { getPoolTokens } from '@/server/actions/getTokens';
 
 export const poolTools = {
   getPoolMarkets: {
@@ -65,7 +66,7 @@ export const poolTools = {
       return (
         <div className="space-y-2">
           {typedResult.data.map((market, index) => (
-            <PoolCard key={market.address} market={market} />
+            <PoolCard key={index} market={market} />
           ))}
         </div>
       );

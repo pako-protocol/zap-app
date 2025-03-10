@@ -29,7 +29,7 @@ const AppSidebarHeader = () => {
     <SidebarHeader>
       <div className="flex items-center justify-between px-1">
         <span className="pl-2 text-lg font-medium tracking-tight group-data-[collapsible=icon]:hidden">
-          neur.sh
+          zap
         </span>
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
@@ -67,18 +67,18 @@ const ExploreItems = [
   },
   {
     title: 'Docs',
-    url: 'https://docs.neur.sh',
+    url: 'https://zenvid.gitbook.io/zap',
     segment: 'docs',
     icon: BookOpen,
     external: true,
   },
-  {
+  /*{
     title: 'Memories',
     url: '/memories',
     segment: 'memories',
     icon: Brain,
     external: false,
-  },
+  },*/
   {
     title: 'Saved Prompts',
     url: '/saved-prompts',

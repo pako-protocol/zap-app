@@ -12,38 +12,38 @@ export interface Integration {
 
 export const INTEGRATIONS: Integration[] = [
   {
-    icon: 'integrations/pump_fun.svg',
-    label: 'pump.fun',
-    description: 'Discover new tokens, launch tokens',
+    icon: 'integrations/silo_finance.svg',
+    label: 'Silo finance',
+    description: 'Lending protocol that offers risk-isolated markets',
     theme: {
       primary: '#10B981', // Green
       secondary: '#10B981', // Green
     },
   },
   {
-    icon: 'integrations/jupiter.svg',
-    label: 'Jupiter',
-    description: 'Swap tokens & DCA, Limit orders',
+    icon: 'integrations/swap_x.svg',
+    label: 'SwapX',
+    description: 'V4 DEX with concentrated liquidity',
     theme: {
       primary: '#16A34A', // Green
       secondary: '#22C55E', // Light green
     },
   },
   {
-    icon: 'integrations/magic_eden.svg',
-    label: 'Magic Eden',
-    description: 'Explore the best NFT collections',
+    icon: 'integrations/de-bridge.svg',
+    label: 'De Bridge',
+    description: 'Bridge that moves at lightspeed.',
     theme: {
-      primary: '#9333EA', // Purple
-      secondary: '#A855F7', // Light purple
+      primary: '#e6dd3e', // Purple
+      secondary: '#a5bf21', // Light purple
     },
   },
   {
-    icon: 'integrations/dialect.svg',
-    label: 'Dialect',
-    description: 'Create and share blinks',
+    icon: 'integrations/ring-protocol.svg',
+    label: 'Ring protocol',
+    description: 'Scalable yield-bearing stablecoin',
     theme: {
-      primary: '#0EA5E9', // Blue
+      primary: '#9e6bbf', // Blue
       secondary: '#38BDF8', // Light blue
     },
   },
@@ -57,9 +57,9 @@ export const INTEGRATIONS: Integration[] = [
     },
   },
   {
-    icon: 'integrations/defined_fi.svg',
-    label: 'Defined Fi',
-    description: 'Discover unbiassed trending tokens',
+    icon: 'integrations/defillama.svg',
+    label: 'Defi Lama',
+    description: 'Discover unbiassed Defi trends',
     theme: {
       primary: '#B0EECF', // Orange
       secondary: '#181432', // White
