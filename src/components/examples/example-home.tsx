@@ -9,10 +9,10 @@ import { useRouter } from 'next/navigation';
 import { useLogin } from '@privy-io/react-auth';
 import { BookOpenIcon } from 'lucide-react';
 
-import { Header } from '@/app/page';
 import { Examples, getExamples } from '@/server/actions/getExamples';
 import { dbGetExamples } from '@/server/db/queries';
 
+import { Header } from '../agents/agents-home';
 import { Brand } from '../logo';
 import { ThemeToggle } from '../theme-toggle';
 import AnimatedShinyText from '../ui/animated-shiny-text';
