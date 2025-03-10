@@ -70,6 +70,20 @@ interface ExamplesHomeProps {
 const ExampleList = ({ examples }: ExamplesHomeProps) => {
   return (
     <div className="mx-auto max-w-7xl  ">
+      <div className="mx-auto  flex  max-w-xl flex-col items-center justify-center ">
+        <div className="inline-flex rounded-xl border bg-muted px-5 py-2">
+          <p>Use Cases</p>
+        </div>
+        <div className="my-3">
+          <h1 className=" text-center text-lg font-semibold tracking-tight md:text-xl lg:text-2xl">
+            How AI Supercharges Productivity
+          </h1>
+          <p className="mt-2 text-center text-muted-foreground">
+            Still curious about what’s possible? Watch our curated video
+            examples and grab prompts to try it yourself!
+          </p>
+        </div>
+      </div>
       <div className=" my-7 border-b py-7">
         <h1 className=" text-lg font-semibold tracking-tight md:text-xl lg:text-2xl">
           See{' '}
@@ -81,7 +95,7 @@ const ExampleList = ({ examples }: ExamplesHomeProps) => {
           Curated short videos (under 1 min) showcasing what’s possible.
         </p>
       </div>
-      <div className=" mt-8 grid grid-cols-2  gap-4">
+      <div className=" mt-8 grid grid-cols-1 gap-4  lg:grid-cols-2">
         {examples.map((item, i) => (
           <div className="relative rounded-xl border " key={i}>
             <HeroVideoDialog
@@ -98,7 +112,7 @@ const ExampleList = ({ examples }: ExamplesHomeProps) => {
               thumbnailSrc={item.thumbnail}
               thumbnailAlt="Hero Video"
             />
-            <div className="px-2 py-1">
+            <div className="px-4 py-2">
               <h2>{item.name}</h2>
             </div>
           </div>
@@ -119,14 +133,13 @@ export default function ExamplesHome({ examples }: ExamplesHomeProps) {
       loginMethod,
       loginAccount,
     ) => {
-      router.push('/home');
+      //router.push('/home');
     },
   });
   return (
     <div>
       <Header handleLogin={login} />
       <ExampleList examples={examples} />
-      <ThemeToggle />
     </div>
   );
 }

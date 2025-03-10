@@ -181,7 +181,7 @@ const addLiquidity = {
       params: z.infer<typeof this.parameters>,
     ): Promise<{ success: boolean; data?: any; error?: string }> {
       try {
-        const { account } = await getViemProvider();
+        const { account, walletClient } = await getViemProvider();
         const allVaults = await getVaults();
         // Chcek vault availability
         const account2 =
@@ -256,14 +256,14 @@ const addLiquidity = {
           address: vaultFound.token0.tokenAddress as Address,
           abi: erc20Abi,
           functionName: 'balanceOf',
-          args: [account2],
+          args: [account?.address as Address],
         });
         console.log('Token 0 balance');
         const token1Balance = await testPublicClient.readContract({
           address: vaultFound.token1.tokenAddress as Address,
           abi: erc20Abi,
           functionName: 'balanceOf',
-          args: [account2],
+          args: [account?.address as Address],
         });
 
         if (token0Allowed && token0Balance < amount0InWei) {
@@ -282,7 +282,7 @@ const addLiquidity = {
             abi: erc20Abi,
             address: vaultFound.token0.tokenAddress as Address,
             functionName: 'allowance',
-            args: [account2, params.vault as Address],
+            args: [account?.address as Address, params.vault as Address],
           })) as bigint;
 
           if (currentAllowance < amount0InWei) {
@@ -314,7 +314,7 @@ const addLiquidity = {
             abi: erc20Abi,
             address: vaultFound.token1.tokenAddress as Address,
             functionName: 'allowance',
-            args: [account2, params.vault as Address],
+            args: [account?.address as Address, params.vault as Address],
           })) as bigint;
 
           if (currentAllowance < amount0InWei) {
@@ -345,8 +345,8 @@ const addLiquidity = {
           address: params.vault as Address,
           abi: ichiVaultAbi,
           functionName: 'deposit',
-          args: [amount0InWei, amount1InWei, account2],
-          account: account2,
+          args: [amount0InWei, amount1InWei, account],
+          account: account,
         });
 
         const returnData = {
@@ -383,7 +383,7 @@ const addLiquidity = {
 
       return (
         <div className="space-y-2">
-          <h1>This is the result of simulation</h1>
+          <h1>Success Card</h1>
         </div>
       );
     },

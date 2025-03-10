@@ -24,7 +24,7 @@ interface AgentsHomeProps {
 const navItems = [
   { label: 'Ai agents', href: '/agents', icon: BookOpenIcon },
   { label: 'Examples', href: '/example', icon: BookOpenIcon },
-  //{ label: 'Docs', href: 'https://docs.neur.sh', icon: BookOpenIcon },
+  //{ label: 'Docs', href: 'https://docs.Zap', icon: BookOpenIcon },
 ];
 
 export const Header = ({ handleLogin }: { handleLogin: () => void }) => {
@@ -67,13 +67,6 @@ export const Header = ({ handleLogin }: { handleLogin: () => void }) => {
               </nav>
 
               <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  className="h-9 rounded-lg px-4 text-sm transition-colors hover:bg-primary hover:text-primary-foreground"
-                  onClick={handleLogin}
-                >
-                  Login
-                </Button>
                 <ThemeToggle />
                 <Button
                   variant="ghost"

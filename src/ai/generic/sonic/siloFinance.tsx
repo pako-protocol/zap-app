@@ -508,9 +508,6 @@ const deposit = {
     execute: async function (
       params: z.infer<typeof this.parameters>,
     ): Promise<{ success: boolean; data?: any; error?: string }> {
-      console.log(
-        `These are arguements  amount is ${params.amount} and asset address is ${params.assetAddress} and user address is ${params.address} and market address is ${params.marketAddress}`,
-      );
       try {
         const { walletClient, account } = await getViemProvider();
         const amountInWei = parseUnits(params.amount, 18);
@@ -534,6 +531,9 @@ const deposit = {
           return { success: false, error: 'NOT_ENOUGH_BALANCE' }; // ✅ Stop execution
         }
 
+        console.log(
+          `These are arguements  amount is ${params.amount} and asset address is ${params.assetAddress} and user address is ${params.address} and market address is ${params.marketAddress}`,
+        );
         // ✅ Check allowance before approving
         const currentAllowance = (await testPublicClient.readContract({
           abi: erc20Abi,
@@ -589,9 +589,9 @@ const deposit = {
             ],
           ],
 
-          account: account?.address as Address,
+          account: account,
         });
-
+        console.log('REACHED TOKEN TRANSCTIONS PART');
         const hash = await walletClient!.writeContract(request);
         const returnData = {
           request,
@@ -632,7 +632,7 @@ const deposit = {
 
       return (
         <div className="space-y-2">
-          <h1>This is the result of simulation</h1>
+          <h1>Tx Hash: {typedResult.data?.hash}</h1>
         </div>
       );
     },
