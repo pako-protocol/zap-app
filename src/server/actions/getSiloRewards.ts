@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { BACK_END } from '@/lib/constants';
+
 interface SiloRewards {
   xpPerDollarDeposit: number;
   xpPerDollarBorrow: number;
@@ -47,7 +49,7 @@ export const getSiloRewards = async (
   }
   try {
     const response = await fetch(
-      `http://localhost:5000/api/v1/markets/silo/rewards?` + queryParams,
+      `${BACK_END}markets/silo/rewards?` + queryParams,
       {
         next: { revalidate: 300 },
       },

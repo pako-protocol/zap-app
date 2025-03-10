@@ -282,6 +282,34 @@ export async function dbGetHypersonicTokens() {
 }
 
 /**
+ * Retrieves all Examples
+ */
+export async function dbGetExamples() {
+  try {
+    return await prisma.example.findMany();
+  } catch (error) {
+    console.error('[DB Error] Failed to get user conversations:', {
+      error,
+    });
+    return [];
+  }
+}
+
+/**
+ * Retrieves all Agents
+ */
+export async function dbGetAgents() {
+  try {
+    return await prisma.agent.findMany();
+  } catch (error) {
+    console.error('[DB Error] Failed to get Agents:', {
+      error,
+    });
+    return [];
+  }
+}
+
+/**
  * Retrieves all conversations for a specific user
  * @param {Object} params - The parameters object
  * @param {string} params.userId - The ID of the user

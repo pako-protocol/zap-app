@@ -340,6 +340,26 @@ model Vault {
   @@index([platformId])
 }
 
+model Example {
+    id   String   @id @default(uuid())
+    name String
+    link String
+    thumbnail String
+    createdAt DateTime @default(now())
+
+    @@map("examples")
+}
+
+model Agent {
+    id   String   @id @default(uuid())
+    name String
+    logo String
+    description String
+    features String?
+    createdAt DateTime @default(now())
+    @@map("agents")
+}
+
 
 enum VaultType {
   CONCENTRATED

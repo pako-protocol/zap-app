@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { dbGetHypersonicTokens } from '../db/queries';
+
 interface TokenINFO {
   name: string;
   symbol: string;
@@ -26,22 +28,18 @@ const whitelistedTokensSchema = z.object({
   tokenId: z.string(),
   token: tokenShema,
 });
-const marketsSchema = z.object({
-  data: z.object({
-    items: z.array(whitelistedTokensSchema),
-  }),
-});
+const marketsSchema = z.array(whitelistedTokensSchema);
 
 export const getHyperSonicTokens = async (): Promise<Token[]> => {
   try {
-    const response = await fetch(`http://localhost:3000/api/hypersonic`, {
+    /*   const response = await fetch(`http://localhost:3000/api/hypersonic`, {
       next: {
         revalidate: 300, // Cache for 5 minutes
       },
       // cache: 'no-store',
-    });
-
-    const data = await response.json();
+    });*/
+    const data = await dbGetHypersonicTokens();
+    //const data = await response.json();
     //const parsed = birdeyeTradersSchema.parse(data);
     console.log('data', data);
     let parsed; // Declare parsed outside the try-catch block
@@ -60,9 +58,9 @@ export const getHyperSonicTokens = async (): Promise<Token[]> => {
       return []; // Return an empty array or handle the error case appropriately
     }
 
-    // Only return the fields we need
+    // Only return the fields we needs
     return await Promise.all(
-      parsed.data.items.map(async (token) => ({
+      parsed.map(async (token) => ({
         id: token.id,
         token: token.token,
         tokenId: token.tokenId,

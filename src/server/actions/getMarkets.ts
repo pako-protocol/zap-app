@@ -2,6 +2,8 @@ import { revalidatePath } from 'next/cache';
 
 import { z } from 'zod';
 
+import { BACK_END } from '@/lib/constants';
+
 interface SiloRewards {
   xpPerDollarDeposit: number;
   xpPerDollarBorrow: number;
@@ -106,7 +108,7 @@ export const getMarkets = async (
       queryParams.append('marketName', params?.marketName); // ✅ Ensures symbol is only added if defined
     }
     const response = await fetch(
-      `http://localhost:5000/api/v1/markets/get-markets?` + queryParams,
+      `${BACK_END}markets/get-markets?` + queryParams,
       {
         next: {
           revalidate: 300, // Cache for 5 minutes

@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck
 //import { EVM, FunctionOptions, FunctionReturn, toResult } from '@heyanon/sdk';
 import axios from 'axios';
 import { Address, erc20Abi, formatUnits, parseUnits } from 'viem';
@@ -7,7 +9,7 @@ import {
   getHyperSonicTokens,
 } from '@/server/actions/getHypersonicTokens';
 
-import { HYPERSONIC_ROUTER_ADDRESS } from '../constants';
+import { HYPERSONIC_ROUTER_ADDRESS, WITHELISTED_TOKENS } from '../constants';
 import { ApproveProps, approveTokens } from './approveAllowance';
 import { testPublicClient } from './sonicClient';
 
@@ -33,23 +35,23 @@ interface Props {
  * @returns Swap result containing the transaction hash
  */
 export async function swap({ inToken, outToken, inAmount }: Props) {
-  const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
+  const account2 = '0x0A408a7F76F206C7898227CDaC871f0E4D3e46eE';
   // Validate wallet
 
   const allTokens: Token[] = await getHyperSonicTokens();
   // Validate input token
-  const tokenFoundA = allTokens.find((i) => i.symbol === inToken);
+  const tokenFoundA = allTokens.find((i) => i.token.symbol === inToken);
   if (!tokenFoundA) {
     console.log('Token from not found', true);
-    return;
+    return { success: false, error: 'IN TOKEN NOT FOUND' };
   }
 
   // Validate output token
 
-  const tokenFoundB = allTokens.find((i) => i.symbol === outToken);
+  const tokenFoundB = allTokens.find((i) => i.token.symbol === outToken);
   if (!tokenFoundB) {
     console.log('Token to not found', true);
-    return;
+    return { success: false, error: 'OUTPUT TOKEN NOT FOUND' };
   }
 
   const chainId = '146';

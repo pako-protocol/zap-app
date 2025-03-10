@@ -122,7 +122,7 @@ export function AccountContent() {
     (acct): acct is WalletWithMetadata =>
       acct.type === 'wallet' &&
       acct.walletClientType !== 'privy' &&
-      acct.chainType === 'solana',
+      acct.chainType === 'ethereum',
   );
 
   const avatarLabel = userData.walletAddress
@@ -204,11 +204,12 @@ export function AccountContent() {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground">
+                      {/* HIDDEN EARLY ACTIVE PROGRAM BADGE*/}
+                      <Label className="hidden text-xs text-muted-foreground">
                         Early Access Program
                       </Label>
-                      <div className="mt-1 flex h-8 items-center">
-                        <span className={cn('text-sm font-medium')}>
+                      <div className="mt-1 flex h-8 items-center ">
+                        <span className={cn('hidden text-sm font-medium')}>
                           {user?.earlyAccess ? 'Active' : 'Not Active'}
                         </span>
 

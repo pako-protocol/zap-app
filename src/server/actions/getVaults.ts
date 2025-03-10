@@ -3,6 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { Address } from 'viem';
 import { z } from 'zod';
 
+import { BACK_END } from '@/lib/constants';
+
 interface Token {
   name: string;
   symbol: string;
@@ -74,7 +76,7 @@ export const getVaults = async (
       queryParams.append('vaultName', params?.vaultName); // ✅ Ensures symbol is only added if defined
     }
     const response = await fetch(
-      `http://localhost:5000/api/v1/vaults/get-vaults?` + queryParams,
+      `${BACK_END}vaults/get-vaults?` + queryParams,
       {
         next: {
           revalidate: 300, // Cache for 5 minutes

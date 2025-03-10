@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck
 'use client';
 
 import React from 'react';
@@ -38,6 +40,27 @@ import { getVaults } from '@/server/actions/getVaults';
 import { revalidateMarkets } from '@/server/actions/revalidateCache';
 import { getBotUsername } from '@/server/actions/telegram';
 import { dbCheckAccessCodeStatus } from '@/server/db/queries';
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
+
+//@ts-nocheck
 
 export default function page() {
   const account = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
@@ -417,8 +440,8 @@ export default function page() {
   const getSwapQuote = async () => {
     try {
       const pros = {
-        inToken: 'S',
-        outToken: 'wS',
+        inToken: 'wS',
+        outToken: 'AG',
         inAmount: '3',
       };
       const res = await quote(pros);
@@ -431,7 +454,7 @@ export default function page() {
     try {
       const pros = {
         inToken: 'wS',
-        outToken: 'S',
+        outToken: 'BRUSH',
         inAmount: '3',
       };
       const res = await swap(pros);
@@ -451,6 +474,16 @@ export default function page() {
       console.log('Point errors', error);
     }
   };
+
+  const handleFetchUserData = async () => {
+    try {
+      const data = await axios.get('http://localhost:3000/api/user-auth');
+      console.log('The user data is', data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <Button onClick={() => depositWts('1')}>Deposit 1 ws</Button>
@@ -498,6 +531,7 @@ export default function page() {
       <Button onClick={() => getSwapQuote()}>Get quote</Button>
       <Button onClick={() => handleSwap()}>Builsd swap</Button>
       <Button onClick={() => handleGetPoinst()}>Get Xp Points</Button>
+      <Button onClick={() => handleFetchUserData()}>Get User data</Button>
 
       <h1 className="my-5 font-semibold">TSTING CARDS</h1>
 

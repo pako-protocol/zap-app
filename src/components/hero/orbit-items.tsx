@@ -14,15 +14,16 @@ export const OrbitItems = ({ items, orbitClass }: OrbItemProps) => {
     <div className={`orbit-items ${orbitClass} z-0`}>
       {items.map((item, i) => (
         <motion.div
-          key={item.name}
-          className="orbit-item"
+          key={i}
+          className="orbit-item "
           style={{ '--index': i / items.length } as React.CSSProperties} // Dynamic spacing
         >
           <Image
             src={item.image}
             alt={item.name}
-            className=" rounded-full object-contain"
-            layout="fill"
+            className=" h-[80%] w-[80%] rounded-full  object-contain"
+            width={40}
+            height={40}
           />
         </motion.div>
       ))}

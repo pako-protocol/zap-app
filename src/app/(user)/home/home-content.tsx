@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { SavedPrompt } from '@prisma/client';
-import { RiTwitterXFill } from '@remixicon/react';
+import { RiTelegram2Fill, RiTwitterXFill } from '@remixicon/react';
 import { JSONValue } from 'ai';
 import { useChat } from 'ai/react';
 import { CheckCircle2, Loader2 } from 'lucide-react';
@@ -219,7 +219,7 @@ export function HomeContent() {
     if (!value.trim()) return;
 
     // CHECK ACCESS RIGHTS
-    if (!user?.earlyAccess) {
+    if (!user || !accessCode || !isValid) {
       return;
     }
 
@@ -517,7 +517,7 @@ export function HomeContent() {
                   </div>
                 </div>
 
-                <Card className="border-teal-500/10 bg-white/[0.01] p-6 backdrop-blur-sm dark:bg-black/[0.01]">
+                <Card className="hidden border-teal-500/10 bg-white/[0.01] p-6 backdrop-blur-sm dark:bg-black/[0.01]">
                   <h3 className="mb-4 font-semibold">EAP Benefits</h3>
                   <div className="space-y-3">
                     {EAP_BENEFITS.map((benefit, index) => (
@@ -544,19 +544,19 @@ export function HomeContent() {
                       type="text"
                       value={accessCodeToken}
                       onChange={(e) => setaccessCodeToken(e.target.value)}
-                      className="h-11 w-full"
+                      className="h-11 w-full border"
                     />
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-4">
                   <Link
-                    href="https://x.com/neur_sh"
+                    href="https://t.me/+8T-oqzlITplhMTVk"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-xs text-muted-foreground transition-colors hover:text-foreground sm:text-sm"
                   >
-                    <RiTwitterXFill className="mr-2 h-4 w-4" />
+                    <RiTelegram2Fill className="mr-2 h-4 w-4" />
                     Follow Updates
                   </Link>
                   <Button

@@ -13,7 +13,7 @@ import { ApproveProps, approveTokens } from './approveAllowance';
 import { testPublicClient } from './sonicClient';
 
 export async function depositWts(amount: string) {
-  const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323'; //'0x4c9972f2AA16B643440488a788e933c139Ff0323';
+  const account2 = '0x0A408a7F76F206C7898227CDaC871f0E4D3e46eE'; //'0x4c9972f2AA16B643440488a788e933c139Ff0323';0x0A408a7F76F206C7898227CDaC871f0E4D3e46eE
 
   console.log('Preparing to deposit stS tokens to Silo Finance...');
 

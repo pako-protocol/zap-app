@@ -32,6 +32,59 @@ export const STS_S_MARKET_ID = '3';
 export const S_BASE = '0xE223C8e92AA91e966CA31d5C6590fF7167E25801';
 export const USDC_BRIDGE = '0x4E216C15697C1392fE59e1014B009505E05810Df';
 export const S_USDC_MARKET_ID = '8';
+export const BACK_END = `http://localhost:5000/api/v1/`;
+interface Token {
+  address: Address;
+  chainBased?: boolean;
+}
+
+// testing constants
+export const skillsOrbit1 = [
+  { name: 'siloFinance', image: '/integrations/silo_finance.svg' },
+
+  { name: 'seapx', image: '/integrations/swap_x.svg' },
+
+  { name: 'ring', image: '/integrations/ring-protocol.svg' },
+  {
+    name: 'Silver swap',
+    image:
+      'https://cdn.sanity.io/images/nat2546z/production/e249240f552d89347f4b991083e21164540bc644-129x129.png',
+  },
+  {
+    name: 'shadow',
+    image:
+      'https://cdn.sanity.io/images/nat2546z/production/9c8aebf1be6d6f1aaca8c1de7c1cf3af7b222bdf-607x607.png',
+  },
+  {
+    name: 'Sonic market',
+    image:
+      'https://cdn.sanity.io/images/nat2546z/production/4889753c54dd68dd1a7d82b6f955cd622aff0473-65x64.png',
+  },
+];
+
+export const skillsOrbit2 = [
+  { name: 'Debridge', image: '/integrations/de-bridge.svg' },
+
+  { name: 'Prisma', image: '/integrations/de-five.png' },
+
+  { name: 'Framer Motion', image: '/integrations/defillama.svg' },
+
+  { name: 'TailwindCSS', image: '/integrations/defined_fi.svg' },
+];
+
+export const skillsOrbit3 = [
+  { name: 'Next.js', image: '/integrations/dexscreener.svg' },
+
+  { name: 'ShadCN UI', image: '/integrations/dialect.svg' },
+
+  { name: 'Google Docs', image: '/integrations/jupiter.svg' },
+];
+
+export const orbitDurations = {
+  orbit1: 30,
+  orbit2: 45,
+  orbit3: 60,
+};
 
 interface Token {
   address: Address;
@@ -126,37 +179,4 @@ export const WITHELISTED_TOKENS = {
   x33: { address: '0x3333111A391cC08fa51353E9195526A70b333333' },
   YEL: { address: '0x949185D3BE66775Ea648F4a306740EA9eFF9C567' },
   YOKO: { address: '0x59524D5667B299c0813Ba3c99a11C038a3908fBC' },
-};
-
-// testing constants
-export const skillsOrbit1 = [
-  { name: 'JavaScript', image: '/integrations/magic_eden.svg' },
-
-  { name: 'React', image: '/integrations/pump_fun.svg' },
-
-  { name: 'TypeScript', image: '/integrations/ring-protocol.svg' },
-];
-
-export const skillsOrbit2 = [
-  { name: 'Debridge', image: '/integrations/de-bridge.svg' },
-
-  { name: 'Prisma', image: '/integrations/de-five.png' },
-
-  { name: 'Framer Motion', image: '/integrations/defillama.svg' },
-
-  { name: 'TailwindCSS', image: '/integrations/defined_fi.svg' },
-];
-
-export const skillsOrbit3 = [
-  { name: 'Next.js', image: '/integrations/dexscreener.svg' },
-
-  { name: 'ShadCN UI', image: '/integrations/dialect.svg' },
-
-  { name: 'Google Docs', image: '/integrations/jupiter.svg' },
-];
-
-export const orbitDurations = {
-  orbit1: 30,
-  orbit2: 45,
-  orbit3: 60,
 };

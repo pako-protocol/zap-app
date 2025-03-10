@@ -175,7 +175,7 @@ export function WalletCard({
                     {balance?.toFixed(4)}
                   </span>
                   <span className="text-sm font-medium text-muted-foreground">
-                    SOL
+                    S
                   </span>
                 </>
               )}

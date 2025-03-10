@@ -46,6 +46,7 @@ export interface SimulationResults {
     assetAddress: string;
     marketAddress: string;
   };
+  hash?: string;
 }
 
 const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
@@ -511,6 +512,7 @@ const deposit = {
         `These are arguements  amount is ${params.amount} and asset address is ${params.assetAddress} and user address is ${params.address} and market address is ${params.marketAddress}`,
       );
       try {
+        const { walletClient, account } = await getViemProvider();
         const amountInWei = parseUnits(params.amount, 18);
 
         if (amountInWei === BigInt(0)) {
@@ -522,7 +524,7 @@ const deposit = {
           abi: erc20Abi,
           address: params.assetAddress as Address,
           functionName: 'balanceOf',
-          args: [account2],
+          args: [account?.address as Address],
         })) as bigint;
 
         if (userBalance < amountInWei) {
@@ -537,7 +539,7 @@ const deposit = {
           abi: erc20Abi,
           address: params.assetAddress as Address,
           functionName: 'allowance',
-          args: [account2, ROUTER_ADDRESS],
+          args: [account?.address as Address, ROUTER_ADDRESS],
         })) as bigint;
 
         console.log('current allowance', currentAllowance);
@@ -587,14 +589,15 @@ const deposit = {
             ],
           ],
 
-          account: account2,
+          account: account?.address as Address,
         });
 
+        const hash = await walletClient!.writeContract(request);
         const returnData = {
           request,
           params,
+          txHash: hash,
         };
-        console.log('This is return data', returnData);
         return {
           success: true,
           data: returnData,
@@ -658,8 +661,9 @@ const withdraw = {
       params: z.infer<typeof this.parameters>,
     ): Promise<{ success: boolean; data?: any; error?: string }> {
       try {
+        const { account, walletClient } = await getViemProvider();
+
         const amountInWei = parseUnits(params.amount, 18);
-        const { account } = await getViemProvider();
         if (amountInWei === BigInt(0)) {
           console.log('Amount must be greater than 0');
           return { success: false, error: 'Amount must be greater than 0' };
@@ -696,13 +700,12 @@ const withdraw = {
           account: account,
         });
 
-        console.log('The results', request);
-
-        console.log('The results', request);
+        const hash = await walletClient!.writeContract(request);
 
         const returnData = {
           request,
           params,
+          txHash: hash,
         };
         return {
           success: true,
@@ -742,7 +745,7 @@ const withdraw = {
 
       return (
         <div className="space-y-2">
-          <h1>This is the result of simulation</h1>
+          <h1>Tx Hash: {typedResult.data?.hash}</h1>
         </div>
       );
     },
@@ -772,7 +775,7 @@ const borrow = {
     ): Promise<{ success: boolean; data?: any; error?: string }> {
       try {
         const amountInWei = parseUnits(params.amount, 18);
-        const { account } = await getViemProvider();
+        const { account, walletClient } = await getViemProvider();
         if (amountInWei === BigInt(0)) {
           console.log('Amount must be greater than 0');
           return { success: false, error: 'Amount must be greater than 0' };
@@ -801,10 +804,11 @@ const borrow = {
           account: account,
         });
 
-        console.log('The results', request);
+        const hash = await walletClient!.writeContract(request);
         const returnData = {
           request,
           params,
+          txHash: hash,
         };
         return {
           success: true,
@@ -840,7 +844,7 @@ const borrow = {
 
       return (
         <div className="space-y-2">
-          <h1>This is the result of simulation</h1>
+          <h1>Tx Hash: {typedResult.data?.hash}</h1>
         </div>
       );
     },
@@ -868,7 +872,7 @@ const repay = {
     ): Promise<{ success: boolean; data?: any; error?: string }> {
       try {
         const amountInWei = parseUnits(params.amount, 18);
-        const { account } = await getViemProvider();
+        const { account, walletClient } = await getViemProvider();
         if (amountInWei === BigInt(0)) {
           console.log('Amount must be greater than 0');
           return { success: false, error: 'Amount must be greater than 0' };
@@ -900,7 +904,12 @@ const repay = {
           console.log(
             `Current allowance: ${formatUnits(currentAllowance, 18)}. Approving more...`,
           );
-          const approval = await approveTokens(params.amount);
+          const props: ApproveProps = {
+            amount: params.amount,
+            target: params.assetAddress as Address,
+            spender: ROUTER_ADDRESS,
+          };
+          const approval = await approveTokens(props);
           if (approval?.success === false) {
             console.log('Token approval failed:', approval.error);
             return { success: false, error: 'Token approval failed' };
@@ -939,11 +948,12 @@ const repay = {
           ],
           account: account,
         });
+        const hash = await walletClient!.writeContract(request);
 
-        console.log('The results', request);
         const returnData = {
           request,
           params,
+          txHash: hash,
         };
         return {
           success: true,
@@ -964,7 +974,6 @@ const repay = {
         data?: SimulationResults;
         error?: string;
       };
-      console.log("I'm  pools result from the Tool", result);
       if (!typedResult.success) {
         return (
           <div className="relative overflow-hidden rounded-2xl bg-destructive/5 p-4">
@@ -979,7 +988,7 @@ const repay = {
 
       return (
         <div className="space-y-2">
-          <h1>This is the result of simulation</h1>
+          <h1>Tx Hash: {typedResult.data?.hash}</h1>
         </div>
       );
     },
@@ -994,7 +1003,7 @@ const positions = {
     description:
       "Retrieve the user's current positions in a specified market. The user must provide the market ID to fetch details of their open positions, including collateral and borrowed amounts. The tool returns a summary of the user's positions within the specified market.",
     parameters: z.object({
-      marketId: z.string().describe('Market Name (e.g., "3")'),
+      marketId: z.string().describe('Market Name'),
       address: z.string().describe('user wallet address'),
     }),
     execute: async function (

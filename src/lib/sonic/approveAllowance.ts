@@ -1,5 +1,7 @@
 import { Address, erc20Abi, parseUnits } from 'viem';
 
+import { getViemProvider } from '@/server/actions/ai';
+
 import { ROUTER_ADDRESS, WS_ADDRESS } from '../constants';
 import { testPublicClient, testWalletClient } from './sonicClient';
 
@@ -10,14 +12,14 @@ export interface ApproveProps {
 }
 export async function approveTokens(args: ApproveProps) {
   try {
+    const { walletClient } = await getViemProvider();
     const amountWei = parseUnits(args.amount, 18);
-    const tx = await testWalletClient.writeContract({
+    const tx = await walletClient?.writeContract({
       address: args.target, // ERC-20 token address
       abi: erc20Abi,
       functionName: 'approve',
       args: [args.spender, amountWei], // Set allowance (adjust amount)
     });
-
     console.log('Approval TX:', tx);
   } catch (error) {
     console.error('Approval error:', error);

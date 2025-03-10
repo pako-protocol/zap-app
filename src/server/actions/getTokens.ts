@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { BACK_END } from '@/lib/constants';
+
 interface Silo {
   name: string;
   aprDeposit: string;
@@ -56,7 +58,7 @@ export const getPoolTokens = async (
       queryParams.append('symbol', params?.symbol); // ✅ Ensures symbol is only added if defined
     }
     const response = await fetch(
-      `http://localhost:5000/api/v1/tokens/get-tokens?` + queryParams,
+      `${BACK_END}tokens/get-tokens?` + queryParams,
       /* {
         next: {
           revalidate: 300, // Cache for 5 minutes

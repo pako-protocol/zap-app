@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { Address, erc20Abi, formatUnits, parseUnits } from 'viem';
+import { sonic } from 'viem/chains';
 import { z } from 'zod';
 
 import TokenCard from '@/components/sonic/token-card';
 import { HYPERSONIC_ROUTER_ADDRESS } from '@/lib/constants';
 import { ApproveProps, approveTokens } from '@/lib/sonic/approveAllowance';
 import { testPublicClient } from '@/lib/sonic/sonicClient';
+import { getViemProvider } from '@/server/actions/ai';
 import {
   Token,
   getHyperSonicTokens,
@@ -15,7 +17,7 @@ const tokens = {
   getHyperSonicWhitelistedTokens: {
     displayName: '🔍 Whitelisted tokens',
     description:
-      'Retrieve a list of all tokens approved for swaps and transactions on hyperSonic',
+      'Retrieve a list of all tokens approved/ supported for swaps and on hyperSonic',
     parameters: z.object({
       query: z.string().describe('Token name or symbol to search for'),
     }),
@@ -214,9 +216,10 @@ const swap = {
       params: z.infer<typeof this.parameters>,
     ): Promise<{ success: boolean; data?: any; error?: string }> {
       try {
+        const { account, walletClient } = await getViemProvider();
         // GET HYPER SONIC WHITELISTED TOKENS
         // Get whitelisted tokens
-        const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
+        //const account2 = '0x4c9972f2AA16B643440488a788e933c139Ff0323';
         const allTokens: Token[] = await getHyperSonicTokens();
         // Validate input token
         const tokenFoundA = allTokens.find(
@@ -266,12 +269,7 @@ const swap = {
           };
         }
         const quoteData = quoteResponse.data.data;
-        const message =
-          `Quote for ${formatUnits(BigInt(params.inAmount), quoteData.inDecimals)} ${params.inToken} to ${params.outToken}:\n` +
-          `Expected output: ${formatUnits(quoteData.outAmount, quoteData.outDecimals)} ${params.outToken}\n` +
-          `Minimum received: ${formatUnits(quoteData.minReceived, quoteData.outDecimals)} ${params.outToken}\n`;
 
-        console.log(message);
         console.log('Building swap transaction...');
 
         // Check and prepare approve transaction if needed
@@ -283,21 +281,22 @@ const swap = {
             abi: erc20Abi,
             address: tokenFoundA?.token.tokenAddress as Address,
             functionName: 'balanceOf',
-            args: [account2],
+            args: [account?.address as Address],
           })) as bigint;
-
           if (userBalance < amountInWei) {
             console.log(
               `Insufficient wS balance. Have ${formatUnits(userBalance, 18)}, want to deposit ${params.inAmount}`,
             );
+            console.log('my account address', account?.address);
             return { success: false, error: 'NOT_ENOUGH_BALANCE' }; // ✅ Stop execution
           }
           console.log('User balance is', userBalance); // ✅ Check allowance before approving
+          console.log('my current wallet address', account?.address);
           const currentAllowance = (await testPublicClient.readContract({
             abi: erc20Abi,
             address: tokenFoundA?.token.tokenAddress as Address,
             functionName: 'allowance',
-            args: [account2, HYPERSONIC_ROUTER_ADDRESS],
+            args: [account?.address as Address, HYPERSONIC_ROUTER_ADDRESS],
           })) as bigint;
 
           if (currentAllowance < amountInWei) {
@@ -341,6 +340,23 @@ const swap = {
           };
         }
 
+        // Create transaction object
+        const txObject = {
+          account: account!,
+          to: buildResponse.data.to,
+          data: buildResponse.data.data,
+          value: buildResponse.data.value,
+          chain: sonic,
+          // Optional: you can specify gas parameters or leave them to be estimated
+        };
+        // Send the transaction
+        const hash = await walletClient!.sendTransaction(txObject);
+        const message =
+          `Quote for ${formatUnits(BigInt(params.inAmount), quoteData.inDecimals)} ${params.inToken} to ${params.outToken}:\n` +
+          `Expected output: ${formatUnits(quoteData.outAmount, quoteData.outDecimals)} ${params.outToken}\n` +
+          `Minimum received: ${formatUnits(quoteData.minReceived, quoteData.outDecimals)} ${params.outToken}\n` +
+          `Transaction Hash: ${hash}`;
+        console.log(`Transaction sent with hash: ${hash}`);
         return { success: true, data: message };
       } catch (error) {
         return {

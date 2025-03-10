@@ -67,18 +67,18 @@ const ExploreItems = [
   },
   {
     title: 'Docs',
-    url: 'https://docs.neur.sh',
+    url: 'https://zenvid.gitbook.io/zap',
     segment: 'docs',
     icon: BookOpen,
     external: true,
   },
-  {
+  /*{
     title: 'Memories',
     url: '/memories',
     segment: 'memories',
     icon: Brain,
     external: false,
-  },
+  },*/
   {
     title: 'Saved Prompts',
     url: '/saved-prompts',
