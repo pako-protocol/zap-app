@@ -1,6 +1,6 @@
 # Local Development
 
-This describes steps to spin up Neur.sh locally:
+This describes steps to spin up Zap locally:
 
 ## Environment Variables
 

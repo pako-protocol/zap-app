@@ -1,6 +1,7 @@
 import { encodeAbiParameters, erc20Abi, formatUnits, parseUnits } from 'viem';
 
 import { routerAbi } from '@/abis';
+import { getViemProvider } from '@/server/actions/ai';
 
 import {
   ETH_ADDRESS,
@@ -18,6 +19,7 @@ export async function depositWts(amount: string) {
   console.log('Preparing to deposit stS tokens to Silo Finance...');
 
   try {
+    const { walletClient } = await getViemProvider();
     const amountInWei = parseUnits(amount, 18);
     if (amountInWei === BigInt(0)) {
       console.log('Amount must be greater than 0');
@@ -96,6 +98,8 @@ export async function depositWts(amount: string) {
     });
 
     console.log('The results', request);
+    const hash = await walletClient!.writeContract(request);
+    console.log('the tx hash', hash);
     return { success: true, message: 'Deposit successful', data: request };
   } catch (error) {
     console.log('Deposit error:', error);

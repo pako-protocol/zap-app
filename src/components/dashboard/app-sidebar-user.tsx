@@ -87,10 +87,12 @@ export const AppSidebarUser = () => {
             <DropdownMenuGroup>
               {/* Follow us on X */}
               <DropdownMenuItem
-                onClick={() => window.open('https://x.com/neur_sh', '_blank')}
+                onClick={() =>
+                  window.open('https://t.me/+8T-oqzlITplhMTVk', '_blank')
+                }
               >
                 <RiTwitterXFill className="mr-2 h-4 w-4" />
-                Follow us on X
+                Follow us on Tg
               </DropdownMenuItem>
 
               {/* FAQ */}
@@ -103,7 +105,9 @@ export const AppSidebarUser = () => {
 
               {/* Docs */}
               <DropdownMenuItem
-                onClick={() => window.open('https://docs.neur.sh', '_blank')}
+                onClick={() =>
+                  window.open('https://zenvid.gitbook.io/zap', '_blank')
+                }
               >
                 <BookOpen className="mr-2 h-4 w-4" />
                 Docs

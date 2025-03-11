@@ -3,6 +3,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 // Public pages that don't require authentication
 const PUBLIC_PAGES = [
   '/', // Home page (Login)
+  '/example',
+  '/agents',
   '/refresh', // Token refresh page
 ];
 
@@ -67,11 +69,21 @@ export async function middleware(req: NextRequest) {
   }
   // JUST REMOVED ! TO ALL CONDTIONS
   // Handle unauthenticated cases
-  if (!definitelyAuthenticated && !maybeAuthenticated) {
+  /*if (!definitelyAuthenticated && !maybeAuthenticated) {
     const loginUrl = new URL('/', req.url);
     // Ensure redirect_uri is the current page path
     loginUrl.searchParams.set('redirect_uri', pathname);
     return NextResponse.redirect(loginUrl);
+  }*/
+
+  if (pathname === '/home') {
+    // Handle unauthenticated cases
+    if (!definitelyAuthenticated && !maybeAuthenticated) {
+      const loginUrl = new URL('/', req.url);
+      // Ensure redirect_uri is the current page path
+      loginUrl.searchParams.set('redirect_uri', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   return NextResponse.next();
